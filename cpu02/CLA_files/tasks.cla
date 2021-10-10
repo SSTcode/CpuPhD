@@ -1,0 +1,46 @@
+#include <stdafx.h>
+
+interrupt void Cla1Task1 ( void )
+{
+    Timer_PWM.CLA_START_TASK = TIMESTAMP_PWM;
+
+    Cla1SoftIntRegs.SOFTINTFRC.all =
+    Cla1SoftIntRegs.SOFTINTEN.all = 1;
+
+    Timer_PWM.CLA_END_TASK = TIMESTAMP_PWM;
+}
+
+interrupt void Cla1Task2 ( void )
+{
+
+}
+
+interrupt void Cla1Task3 ( void )
+{
+
+}
+
+interrupt void Cla1Task4 ( void )
+{
+
+}
+
+interrupt void Cla1Task5 ( void )
+{
+
+}
+
+interrupt void Cla1Task6 ( void )
+{
+
+}
+
+interrupt void Cla1Task7 ( void )
+{
+
+}
+
+interrupt void Cla1Task8 ( void )
+{
+
+}

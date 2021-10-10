@@ -1,0 +1,47 @@
+#include <stdafx.h>
+
+extern void ePWM_leg(volatile struct EPWM_REGS *EPwmRegT1T2, float duty);
+
+interrupt void Cla1Task1 ( void )
+{
+    Timer_PWM.CLA_START_TASK = TIMESTAMP_PWM;
+
+    CIC2_filter_CLAasm(&CIC2_calibration, *CIC2_calibration_input.ptr);
+
+    Timer_PWM.CLA_END_TASK = TIMESTAMP_PWM;
+}
+
+interrupt void Cla1Task2 ( void )
+{
+
+}
+
+interrupt void Cla1Task3 ( void )
+{
+
+}
+
+interrupt void Cla1Task4 ( void )
+{
+
+}
+
+interrupt void Cla1Task5 ( void )
+{
+
+}
+
+interrupt void Cla1Task6 ( void )
+{
+
+}
+
+interrupt void Cla1Task7 ( void )
+{
+
+}
+
+interrupt void Cla1Task8 ( void )
+{
+
+}
