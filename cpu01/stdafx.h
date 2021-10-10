@@ -48,11 +48,39 @@ union ALARM
     Uint32 all[2];
     struct
     {
-        Uint32 U_dc_H:1;
-        Uint32 U_dc_L:1;
+        Uint32 U_dc_0_L:1;
+        Uint32 U_dc_0_H:1;
+        Uint32 U_dc_1_L:1;
+        Uint32 U_dc_1_H:1;
+        Uint32 U_dc_2_L:1;
+        Uint32 U_dc_2_H:1;
+        Uint32 U_dc_3_L:1;
+        Uint32 U_dc_3_H:1;
+
+        Uint32 I_conv_0_L:1;
+        Uint32 I_conv_0_H:1;
+        Uint32 I_conv_1_L:1;
+        Uint32 I_conv_1_H:1;
+        Uint32 I_conv_2_L:1;
+        Uint32 I_conv_2_H:1;
+        Uint32 I_conv_3_L:1;
+        Uint32 I_conv_3_H:1;
+
+        Uint32 temperature_0A_H:1;
+        Uint32 temperature_0B_H:1;
+        Uint32 temperature_1A_H:1;
+        Uint32 temperature_1B_H:1;
+        Uint32 temperature_2A_H:1;
+        Uint32 temperature_2B_H:1;
+        Uint32 temperature_3A_H:1;
+        Uint32 temperature_3B_H:1;
+
+        Uint32 I_grid_L:1;
+        Uint32 I_grid_H:1;
+
         Uint32 Not_enough_data : 1;
 
-        Uint32 rsvd1:29;
+        Uint32 rsvd1:5;
         Uint32 rsvd2:32;
     }bit;
 };
@@ -87,13 +115,77 @@ union CONTROL
 
 struct Measurements_gain_offset_struct
 {
-    float U_dc;
+    float temperature;
+    float I_conv_0;
+    float U_dc_0;
+    float I_conv_1;
+    float U_dc_1;
+    float I_conv_2;
+    float U_dc_2;
+    float I_conv_3;
+    float U_dc_3;
+    float I_grid;
+    float U_grid;
 };
 
 struct Measurements_alarm_struct
 {
     float U_dc;
-    float Temp;
+    float I_conv;
+    float I_grid;
+    float temperature;
+};
+
+union EMIF_union
+{
+    struct
+    {
+        int16 temperature_0A;
+        int16 temperature_0B;
+        int16 temperature_1A;
+        int16 temperature_1B;
+        int16 temperature_2A;
+        int16 temperature_2B;
+        int16 temperature_3A;
+        int16 temperature_3B;
+        int16 I_conv_0;
+        int16 U_dc_0;
+        int16 I_conv_1;
+        int16 U_dc_1;
+        int16 I_conv_2;
+        int16 U_dc_2;
+        int16 I_conv_3;
+        int16 U_dc_3;
+        int16 I_grid;
+        int16 U_grid;
+    }read;
+
+    struct
+    {
+        Uint16 dummy;
+    }write;
+};
+
+struct EMIF_CLA_struct
+{
+    int16 temperature_0A;
+    int16 temperature_0B;
+    int16 temperature_1A;
+    int16 temperature_1B;
+    int16 temperature_2A;
+    int16 temperature_2B;
+    int16 temperature_3A;
+    int16 temperature_3B;
+    int16 I_conv_0;
+    int16 U_dc_0;
+    int16 I_conv_1;
+    int16 U_dc_1;
+    int16 I_conv_2;
+    int16 U_dc_2;
+    int16 I_conv_3;
+    int16 U_dc_3;
+    int16 I_grid;
+    int16 U_grid;
 };
 
 //
@@ -108,6 +200,9 @@ extern struct Measurements_gain_offset_struct Meas_gain;
 extern struct Measurements_gain_offset_struct Meas_offset;
 extern struct Measurements_alarm_struct Meas_alarm_H;
 extern struct Measurements_alarm_struct Meas_alarm_L;
+
+extern volatile union EMIF_union EMIF_mem;
+extern struct EMIF_CLA_struct EMIF_CLA;
 
 extern union STATUS status;
 extern union CONTROL control;

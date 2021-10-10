@@ -40,107 +40,6 @@ void Init_class::IPCBootCPU2_flash()
     }
 }
 
-void Init_class::clear_alarms()
-{
-    if(alarm.bit.Not_enough_data)
-    {
-        alarm.all[0] =
-        alarm.all[1] =
-        alarm_snapshot.all[0] =
-        alarm_snapshot.all[1] = 0;
-        alarm.bit.Not_enough_data = 1;
-    }
-    else
-    {
-        alarm.all[0] =
-        alarm.all[1] =
-        alarm_snapshot.all[0] =
-        alarm_snapshot.all[1] = 0;
-    }
-}
-
-void Init_class::CPUS()
-{
-    EALLOW;
-
-    DevCfgRegs.CPUSEL0.bit.EPWM11 = 1;
-
-    MemCfgRegs.GSxMSEL.bit.MSEL_GS0  = 0;
-    MemCfgRegs.GSxMSEL.bit.MSEL_GS1  = 0;
-    MemCfgRegs.GSxMSEL.bit.MSEL_GS2  = 0;
-    MemCfgRegs.GSxMSEL.bit.MSEL_GS3  = 0;
-    MemCfgRegs.GSxMSEL.bit.MSEL_GS4  = 0;
-    MemCfgRegs.GSxMSEL.bit.MSEL_GS5  = 0;
-    MemCfgRegs.GSxMSEL.bit.MSEL_GS6  = 0;
-    MemCfgRegs.GSxMSEL.bit.MSEL_GS7  = 0;
-    MemCfgRegs.GSxMSEL.bit.MSEL_GS8  = 0;
-    MemCfgRegs.GSxMSEL.bit.MSEL_GS9  = 0;
-    MemCfgRegs.GSxMSEL.bit.MSEL_GS10 = 0;
-    MemCfgRegs.GSxMSEL.bit.MSEL_GS11 = 0;
-    MemCfgRegs.GSxMSEL.bit.MSEL_GS12 = 0;
-    MemCfgRegs.GSxMSEL.bit.MSEL_GS13 = 1;
-    MemCfgRegs.GSxMSEL.bit.MSEL_GS14 = 1;
-    MemCfgRegs.GSxMSEL.bit.MSEL_GS15 = 1;
-
-   EDIS;
-}
-
-void Init_class::PWM_sync()
-{
-    EALLOW;
-    CpuSysRegs.PCLKCR3.bit.ECAP1 = 1;
-
-    // Setup APWM mode on CAP1, set period and compare registers
-    //
-    ECap1Regs.ECCTL2.bit.CAP_APWM = 1;      // Enable APWM mode
-    ECap1Regs.ECCTL2.bit.SYNCO_SEL = 1;      // Select CTR = PRD event to be the sync-out signal
-    ECap1Regs.ECCTL1.bit.FREE_SOFT = 2;
-    ECap1Regs.CAP1 = (10000 << 1) - 1;            // Set Period value
-    ECap1Regs.CAP4 = (ECap1Regs.CAP1 + 1) >> 1; // 50% duty
-    //
-    // Start counters
-    //
-    ECap1Regs.ECCTL2.bit.TSCTRSTOP = 1;
-
-    OutputXbarRegs.OUTPUT3MUX0TO15CFG.bit.MUX0 = 3; // Select ECAP1.OUT on Mux0
-    OutputXbarRegs.OUTPUT3MUXENABLE.bit.MUX0 = 1;  // Enable MUX0 for ECAP1.OUT
-}
-
-void Init_class::PWM_timestamp(volatile struct EPWM_REGS *EPwmReg)
-{
-    EALLOW;
-
-    EPwmReg->TBPRD = 10000-1;                   // PWM frequency = 1/(TBPRD+1)
-    EPwmReg->TBPHS.all = 0;
-
-    EPwmReg->TBCTL.bit.SYNCOSEL = TB_SYNC_IN;
-    EPwmReg->TBCTL.bit.PHSEN = TB_ENABLE;
-    EPwmReg->TBCTL.bit.PHSDIR = TB_UP;
-
-//Configure modes, clock dividers and action qualifier
-    EPwmReg->TBCTL.bit.CTRMODE = TB_COUNT_UP;         // Select up-down count mode
-    EPwmReg->TBCTL.bit.HSPCLKDIV = TB_DIV1;
-    EPwmReg->TBCTL.bit.CLKDIV = TB_DIV1;                  // TBCLK = SYSCLKOUT
-    EPwmReg->TBCTL.bit.FREE_SOFT = 2;
-    EPwmReg->TBCTL.bit.PRDLD = TB_SHADOW;                 // set Shadow load
-
-    EDIS;
-}
-
-void Init_class::PWMs()
-{
-    EALLOW;
-    CpuSysRegs.PCLKCR0.bit.TBCLKSYNC = 1;
-    EDIS;
-
-    EALLOW;
-    CpuSysRegs.PCLKCR2.bit.EPWM10 = 1;
-    EDIS;
-
-    PWM_timestamp(&EPwm10Regs);
-    PWM_sync();
-}
-
 void Init_class::CLA()
 {
     EALLOW;
@@ -224,13 +123,313 @@ void Init_class::CLA()
     EDIS;
 }
 
+void Init_class::CPUS()
+{
+    EALLOW;
+
+    DevCfgRegs.CPUSEL0.bit.EPWM11 = 1;
+
+    MemCfgRegs.GSxMSEL.bit.MSEL_GS0  = 0;
+    MemCfgRegs.GSxMSEL.bit.MSEL_GS1  = 0;
+    MemCfgRegs.GSxMSEL.bit.MSEL_GS2  = 0;
+    MemCfgRegs.GSxMSEL.bit.MSEL_GS3  = 0;
+    MemCfgRegs.GSxMSEL.bit.MSEL_GS4  = 0;
+    MemCfgRegs.GSxMSEL.bit.MSEL_GS5  = 0;
+    MemCfgRegs.GSxMSEL.bit.MSEL_GS6  = 0;
+    MemCfgRegs.GSxMSEL.bit.MSEL_GS7  = 0;
+    MemCfgRegs.GSxMSEL.bit.MSEL_GS8  = 0;
+    MemCfgRegs.GSxMSEL.bit.MSEL_GS9  = 0;
+    MemCfgRegs.GSxMSEL.bit.MSEL_GS10 = 0;
+    MemCfgRegs.GSxMSEL.bit.MSEL_GS11 = 0;
+    MemCfgRegs.GSxMSEL.bit.MSEL_GS12 = 0;
+    MemCfgRegs.GSxMSEL.bit.MSEL_GS13 = 0;
+    MemCfgRegs.GSxMSEL.bit.MSEL_GS14 = 0;
+    MemCfgRegs.GSxMSEL.bit.MSEL_GS15 = 1;
+
+   EDIS;
+}
+
+void Init_class::EMIF()
+{
+    GPIO_Setup(EM1D0 );
+    GPIO_Setup(EM1D1 );
+    GPIO_Setup(EM1D2 );
+    GPIO_Setup(EM1D3 );
+    GPIO_Setup(EM1D4 );
+    GPIO_Setup(EM1D5 );
+    GPIO_Setup(EM1D6 );
+    GPIO_Setup(EM1D7 );
+    GPIO_Setup(EM1D8 );
+    GPIO_Setup(EM1D9 );
+    GPIO_Setup(EM1D10);
+    GPIO_Setup(EM1D11);
+    GPIO_Setup(EM1D12);
+    GPIO_Setup(EM1D13);
+    GPIO_Setup(EM1D14);
+    GPIO_Setup(EM1D15);
+
+    GPIO_Setup(EM1CS2);
+    GPIO_Setup(EM1WE );
+    GPIO_Setup(EM1OE );
+
+    GPIO_Setup(EM1BA1);
+    GPIO_Setup(EM1A0 );
+    GPIO_Setup(EM1A1 );
+    GPIO_Setup(EM1A2 );
+    GPIO_Setup(EM1A3 );
+    GPIO_Setup(EM1A4 );
+    GPIO_Setup(EM1A5 );
+    GPIO_Setup(EM1A6 );
+    GPIO_Setup(EM1A7 );
+    GPIO_Setup(EM1A8 );
+    GPIO_Setup(EM1A9 );
+    GPIO_Setup(EM1A10);
+    GPIO_Setup(EM1A11);
+
+    EALLOW;
+
+    CpuSysRegs.PCLKCR1.bit.EMIF1            = 0x1;
+    ClkCfgRegs.PERCLKDIVSEL.bit.EMIF1CLKDIV = 0x0;
+
+    Uint16  ErrCount = 0;
+
+    //
+    // Grab EMIF1 For CPU1. EMIF_selectMaster
+    //
+    Emif1ConfigRegs.EMIF1MSEL.all = 0x93A5CE71; //Writing the value 0x93A5CE7 will allow the writing of the  EMIF1M select bits
+    if(Emif1ConfigRegs.EMIF1MSEL.all != 0x1)
+    {
+        ErrCount++;
+    }
+    //Disable Access Protection (CPU_FETCH/CPU_WR/DMA_WR)
+    Emif1ConfigRegs.EMIF1ACCPROT0.all = 0x0;
+    if(Emif1ConfigRegs.EMIF1ACCPROT0.all != 0x0)
+    {
+        ErrCount++;
+    }
+    // Commit the configuration related to protection. Till this bit remains set
+    // content of EMIF1ACCPROT0 register can't be changed.
+    Emif1ConfigRegs.EMIF1COMMIT.all = 0x1;
+    if(Emif1ConfigRegs.EMIF1COMMIT.all != 0x1)
+    {
+       ErrCount++;
+    }
+    // Lock the configuration so that EMIF1COMMIT register can't be
+    // changed any more.
+    Emif1ConfigRegs.EMIF1LOCK.all = 0x1;
+    if(Emif1ConfigRegs.EMIF1LOCK.all != 1)
+    {
+        ErrCount++;
+    }
+
+    Emif1Regs.ASYNC_CS2_CR.bit.SS       = 0;
+    Emif1Regs.ASYNC_CS2_CR.bit.EW       = 0;
+    Emif1Regs.ASYNC_CS2_CR.bit.W_SETUP  = 0;
+    Emif1Regs.ASYNC_CS2_CR.bit.W_STROBE = 0;
+    Emif1Regs.ASYNC_CS2_CR.bit.W_HOLD   = 0;
+    Emif1Regs.ASYNC_CS2_CR.bit.R_SETUP  = 0;
+    Emif1Regs.ASYNC_CS2_CR.bit.R_STROBE = 4;
+    Emif1Regs.ASYNC_CS2_CR.bit.R_HOLD   = 0;
+    Emif1Regs.ASYNC_CS2_CR.bit.TA       = 0;
+    Emif1Regs.ASYNC_CS2_CR.bit.ASIZE    = 1;
+
+    EDIS;
+}
+
+void Init_class::clear_alarms()
+{
+    Init.EPwm_TZclear(&EPwm9Regs);
+
+    if(alarm.bit.Not_enough_data)
+    {
+        alarm.all[0] =
+        alarm.all[1] =
+        alarm_snapshot.all[0] =
+        alarm_snapshot.all[1] = 0;
+        alarm.bit.Not_enough_data = 1;
+    }
+    else
+    {
+        alarm.all[0] =
+        alarm.all[1] =
+        alarm_snapshot.all[0] =
+        alarm_snapshot.all[1] = 0;
+    }
+}
+
+void Init_class::TZ_EN(volatile struct EPWM_REGS *EPwmReg)
+{
+    EALLOW;
+
+    EPwmReg->TBPRD = 1999;                   // PWM frequency = 1/(TBPRD+1)
+    EPwmReg->TBCTR = 0;                     //clear counter
+    EPwmReg->TBPHS.all = 0;
+
+    EPwmReg->TBCTL.bit.SYNCOSEL = TB_SYNC_IN;
+    EPwmReg->TBCTL.bit.PHSEN = TB_ENABLE;
+    EPwmReg->TBCTL.bit.PHSDIR = TB_UP;
+
+//Configure modes, clock dividers and action qualifier
+    EPwmReg->TBCTL.bit.CTRMODE = TB_COUNT_UP;         // Select up-down count mode
+    EPwmReg->TBCTL.bit.HSPCLKDIV = TB_DIV1;
+    EPwmReg->TBCTL.bit.CLKDIV = TB_DIV1;                  // TBCLK = SYSCLKOUT
+    EPwmReg->TBCTL.bit.FREE_SOFT = 2;
+    EPwmReg->TBCTL.bit.PRDLD = TB_SHADOW;                 // set Shadow load
+
+    EPwmReg->AQCTLA.bit.ZRO = AQ_SET;
+    EPwmReg->AQCTLA.bit.PRD = AQ_SET;
+
+    //Configure trip-zone
+    EPwmReg->TZCTL.bit.TZA = TZ_FORCE_LO;
+
+    //    EPwmReg->TZSEL.bit.OSHT1 = 1;
+//    EPwmReg->TZSEL.bit.OSHT3 = 1;
+    EPwmReg->TZSEL.bit.OSHT5 = 1;
+    EPwmReg->TZSEL.bit.OSHT6 = 1;
+    EDIS;
+}
+
+void Init_class::EPwm_TZclear(volatile struct EPWM_REGS *EPwmReg)
+{
+    EALLOW;
+    EPwmReg->TZOSTCLR.all = 0xFF;
+    EPwmReg->TZCLR.bit.OST = 1;
+    EDIS;
+}
+
+void Init_class::EPwm(volatile struct EPWM_REGS *EPwmReg)
+{
+    EPwmReg->TBPRD = 1000;                   // PWM frequency = 1/(2*TBPRD)
+    EPwmReg->TBPHS.bit.TBPHS = 1;
+    EPwmReg->TBCTL.bit.PHSDIR = TB_DOWN;
+
+    EPwmReg->TBCTL.bit.SYNCOSEL = TB_SYNC_IN;
+    EPwmReg->TBCTL.bit.PHSEN = TB_ENABLE;
+
+    EPwmReg->TBCTL.bit.CTRMODE = TB_COUNT_UPDOWN;
+    EPwmReg->TBCTL.bit.HSPCLKDIV = TB_DIV1;
+
+    EALLOW;
+    EPwmReg->GLDCTL.bit.GLD = 1;
+    EPwmReg->GLDCTL.bit.GLDPRD = 1;
+    EPwmReg->GLDCTL.bit.GLDMODE = 6;
+    EPwmReg->GLDCFG.bit.AQCSFRC = 1;
+    EPwmReg->GLDCFG.bit.CMPA_CMPAHR = 1;
+    EDIS;
+
+    EPwmReg->CMPCTL.bit.SHDWAMODE = CC_SHADOW;
+    EPwmReg->CMPCTL.bit.SHDWBMODE = CC_SHADOW;
+
+    EPwmReg->AQTSRCSEL.bit.T1SEL = 7;
+    EPwmReg->AQCTLA2.bit.T1D = AQ_SET;
+    EPwmReg->AQCTLA.bit.ZRO = AQ_SET;
+    EPwmReg->AQCTLA.bit.CAD = AQ_SET;
+    EPwmReg->AQCTLA.bit.CAU = AQ_CLEAR;
+    EPwmReg->AQCTLA.bit.PRD = AQ_CLEAR;
+
+    EPwmReg->DBCTL.bit.SHDWDBFEDMODE = 1;
+    EPwmReg->DBCTL.bit.SHDWDBREDMODE = 1;
+
+    EPwmReg->DBCTL.bit.HALFCYCLE = 1;
+    EPwmReg->DBCTL.bit.OUT_MODE = DB_FULL_ENABLE;
+    EPwmReg->DBCTL.bit.POLSEL = DB_ACTV_HIC;
+    EPwmReg->DBCTL.bit.IN_MODE = DBA_ALL;
+    EPwmReg->DBRED.bit.DBRED = 50;
+    EPwmReg->DBFED.bit.DBFED = 50;
+}
+
+
+void Init_class::PWM_timestamp(volatile struct EPWM_REGS *EPwmReg)
+{
+    EALLOW;
+
+    EPwmReg->TBPRD = 10000-1;                   // PWM frequency = 1/(TBPRD+1)
+    EPwmReg->TBPHS.all = 0;
+
+    EPwmReg->TBCTL.bit.SYNCOSEL = TB_SYNC_IN;
+    EPwmReg->TBCTL.bit.PHSEN = TB_ENABLE;
+    EPwmReg->TBCTL.bit.PHSDIR = TB_UP;
+
+//Configure modes, clock dividers and action qualifier
+    EPwmReg->TBCTL.bit.CTRMODE = TB_COUNT_UP;         // Select up-down count mode
+    EPwmReg->TBCTL.bit.HSPCLKDIV = TB_DIV1;
+    EPwmReg->TBCTL.bit.CLKDIV = TB_DIV1;                  // TBCLK = SYSCLKOUT
+    EPwmReg->TBCTL.bit.FREE_SOFT = 2;
+    EPwmReg->TBCTL.bit.PRDLD = TB_SHADOW;                 // set Shadow load
+
+    EDIS;
+}
+
+void Init_class::PWMs()
+{
+    EALLOW;
+    CpuSysRegs.PCLKCR0.bit.TBCLKSYNC = 1;
+    EDIS;
+
+    EALLOW;
+    CpuSysRegs.PCLKCR2.bit.EPWM1 = 1;
+    CpuSysRegs.PCLKCR2.bit.EPWM2 = 1;
+    CpuSysRegs.PCLKCR2.bit.EPWM3 = 1;
+    CpuSysRegs.PCLKCR2.bit.EPWM4 = 1;
+    CpuSysRegs.PCLKCR2.bit.EPWM5 = 1;
+    CpuSysRegs.PCLKCR2.bit.EPWM6 = 1;
+    CpuSysRegs.PCLKCR2.bit.EPWM7 = 1;
+    CpuSysRegs.PCLKCR2.bit.EPWM8 = 1;
+    CpuSysRegs.PCLKCR2.bit.EPWM9 = 1;
+    CpuSysRegs.PCLKCR2.bit.EPWM10 = 1;
+    EDIS;
+
+    EALLOW;
+    SyncSocRegs.SYNCSELECT.bit.EPWM4SYNCIN = 5;
+    SyncSocRegs.SYNCSELECT.bit.EPWM7SYNCIN = 5;
+    SyncSocRegs.SYNCSELECT.bit.EPWM10SYNCIN = 5;
+    EDIS;
+
+    EPwm(&EPwm1Regs);
+    EPwm(&EPwm2Regs);
+    EPwm(&EPwm3Regs);
+    EPwm(&EPwm4Regs);
+    EPwm(&EPwm5Regs);
+    EPwm(&EPwm6Regs);
+    EPwm(&EPwm7Regs);
+    EPwm(&EPwm8Regs);
+    TZ_EN(&EPwm9Regs);
+    PWM_timestamp(&EPwm10Regs);
+
+    GPIO_Setup(TZ_EN_CPU);
+    GPIO_Setup(PWM_SYNC_CPU);
+
+    GPIO_Setup(PWM1A);
+    GPIO_Setup(PWM1B);
+    GPIO_Setup(PWM2A);
+    GPIO_Setup(PWM2B);
+    GPIO_Setup(PWM3A);
+    GPIO_Setup(PWM3B);
+    GPIO_Setup(PWM4A);
+    GPIO_Setup(PWM4B);
+    GPIO_Setup(PWM5A);
+    GPIO_Setup(PWM5B);
+    GPIO_Setup(PWM6A);
+    GPIO_Setup(PWM6B);
+    GPIO_Setup(PWM7A);
+    GPIO_Setup(PWM7B);
+    GPIO_Setup(PWM8A);
+    GPIO_Setup(PWM8B);
+}
+
 void Init_class::Variables()
 {
-    Meas_alarm_H.Temp = 65.0f;
-    Meas_alarm_L.Temp = 0.0f;
+    Meas_alarm_H.temperature = 65.0f;
+    Meas_alarm_L.temperature = 0.0f;
 
     Meas_alarm_H.U_dc = 690.0f;
     Meas_alarm_L.U_dc = -50.0f;
+
+    Meas_alarm_H.I_conv = 16.0f;
+    Meas_alarm_L.I_conv = -16.0f;
+
+    Meas_alarm_H.I_grid = 16.0f;
+    Meas_alarm_L.I_grid = -16.0f;
 
     CIC2_calibration.decimation_ratio = 5.0f;
     CIC2_calibration.decimation_counter = 4.0f;
@@ -238,7 +437,7 @@ void Init_class::Variables()
     CIC2_calibration.div_OSR = 1.0f / CIC2_calibration.OSR;
     CIC2_calibration.range_modifier = 2500.0f;
     CIC2_calibration.div_range_modifier = 1.0f / CIC2_calibration.range_modifier;
-    CIC2_calibration_input.ptr = &Meas.U_dc;
+    CIC2_calibration_input.ptr = &Meas.U_dc_0;
 }
 
 const struct GPIO_struct GPIOreg[169] =
@@ -247,10 +446,94 @@ const struct GPIO_struct GPIOreg[169] =
 [SD_SPISOMI_PIN] = {HIGH, MUX6, CPU1_IO, INPUT, ASYNC | PULLUP},
 [SD_SPICLK_PIN] = {HIGH, MUX6, CPU1_IO, OUTPUT, PUSHPULL},
 [SD_SPISTE_PIN] = {HIGH, MUX0, CPU1_IO, OUTPUT, PUSHPULL},
-[PWM_SYNC] = {HIGH, MUX6, CPU1_IO, OUTPUT, PUSHPULL},
+
+[EM1D0 ] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
+[EM1D1 ] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
+[EM1D2 ] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
+[EM1D3 ] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
+[EM1D4 ] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
+[EM1D5 ] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
+[EM1D6 ] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
+[EM1D7 ] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
+[EM1D8 ] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
+[EM1D9 ] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
+[EM1D10] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
+[EM1D11] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
+[EM1D12] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
+[EM1D13] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
+[EM1D14] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
+[EM1D15] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
+
+[EM1CS2] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
+[EM1WE ] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
+[EM1OE ] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
+
+[EM1BA1] = {HIGH, MUX3, CPU1_IO, INPUT, ASYNC},
+[EM1A0 ] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
+[EM1A1 ] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
+[EM1A2 ] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
+[EM1A3 ] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
+[EM1A4 ] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
+[EM1A5 ] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
+[EM1A6 ] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
+[EM1A7 ] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
+[EM1A8 ] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
+[EM1A9 ] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
+[EM1A10] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
+[EM1A11] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
+
+[PWM1A] = {LOW, MUX1, CPU1_IO, OUTPUT, PUSHPULL},
+[PWM1B] = {LOW, MUX1, CPU1_IO, OUTPUT, PUSHPULL},
+[PWM2A] = {LOW, MUX1, CPU1_IO, OUTPUT, PUSHPULL},
+[PWM2B] = {LOW, MUX1, CPU1_IO, OUTPUT, PUSHPULL},
+[PWM3A] = {LOW, MUX1, CPU1_IO, OUTPUT, PUSHPULL},
+[PWM3B] = {LOW, MUX1, CPU1_IO, OUTPUT, PUSHPULL},
+[PWM4A] = {LOW, MUX1, CPU1_IO, OUTPUT, PUSHPULL},
+[PWM4B] = {LOW, MUX1, CPU1_IO, OUTPUT, PUSHPULL},
+[PWM5A] = {LOW, MUX1, CPU1_IO, OUTPUT, PUSHPULL},
+[PWM5B] = {LOW, MUX1, CPU1_IO, OUTPUT, PUSHPULL},
+[PWM6A] = {LOW, MUX1, CPU1_IO, OUTPUT, PUSHPULL},
+[PWM6B] = {LOW, MUX1, CPU1_IO, OUTPUT, PUSHPULL},
+[PWM7A] = {LOW, MUX1, CPU1_IO, OUTPUT, PUSHPULL},
+[PWM7B] = {LOW, MUX1, CPU1_IO, OUTPUT, PUSHPULL},
+[PWM8A] = {LOW, MUX1, CPU1_IO, OUTPUT, PUSHPULL},
+[PWM8B] = {LOW, MUX1, CPU1_IO, OUTPUT, PUSHPULL},
+
+[TZ_EN_CPU] = {LOW, MUX1, CPU1_IO, OUTPUT, PUSHPULL},
+[PWM_SYNC_CPU] = {LOW, MUX0, CPU1_IO, INPUT, ASYNC},
+
+[RELAY_H1_DC_CPU] = {LOW, MUX0, CPU1CLA_IO, OUTPUT, PUSHPULL},
+[RELAY_H2_DC_CPU] = {LOW, MUX0, CPU1CLA_IO, OUTPUT, PUSHPULL},
+[RELAY_H3_DC_CPU] = {LOW, MUX0, CPU1CLA_IO, OUTPUT, PUSHPULL},
+[RELAY_H4_DC_CPU] = {LOW, MUX0, CPU1CLA_IO, OUTPUT, PUSHPULL},
+
+[RELAY_H1_GRID_CPU] = {LOW, MUX0, CPU1CLA_IO, OUTPUT, PUSHPULL},
+[RELAY_H2_GRID_CPU] = {LOW, MUX0, CPU1CLA_IO, OUTPUT, PUSHPULL},
+[RELAY_H3_GRID_CPU] = {LOW, MUX0, CPU1CLA_IO, OUTPUT, PUSHPULL},
+[RELAY_H4_GRID_CPU] = {LOW, MUX0, CPU1CLA_IO, OUTPUT, PUSHPULL},
+
+[PWM_H1_ON_CPU] = {LOW, MUX0, CPU1CLA_IO, OUTPUT, PUSHPULL},
+[PWM_H2_ON_CPU] = {LOW, MUX0, CPU1CLA_IO, OUTPUT, PUSHPULL},
+[PWM_H3_ON_CPU] = {LOW, MUX0, CPU1CLA_IO, OUTPUT, PUSHPULL},
+[PWM_H4_ON_CPU] = {LOW, MUX0, CPU1CLA_IO, OUTPUT, PUSHPULL},
+
 };
 
 void Init_class::GPIO()
 {
-    GPIO_Setup(PWM_SYNC);
+
+    GPIO_Setup(RELAY_H1_DC_CPU);
+    GPIO_Setup(RELAY_H2_DC_CPU);
+    GPIO_Setup(RELAY_H3_DC_CPU);
+    GPIO_Setup(RELAY_H4_DC_CPU);
+
+    GPIO_Setup(RELAY_H1_GRID_CPU);
+    GPIO_Setup(RELAY_H2_GRID_CPU);
+    GPIO_Setup(RELAY_H3_GRID_CPU);
+    GPIO_Setup(RELAY_H4_GRID_CPU);
+
+    GPIO_Setup(PWM_H1_ON_CPU);
+    GPIO_Setup(PWM_H2_ON_CPU);
+    GPIO_Setup(PWM_H3_ON_CPU);
+    GPIO_Setup(PWM_H4_ON_CPU);
 }

@@ -12,7 +12,24 @@
 
 struct Measurements_struct
 {
-    float U_dc;
+    float temperature_0A;
+    float temperature_0B;
+    float temperature_1A;
+    float temperature_1B;
+    float temperature_2A;
+    float temperature_2B;
+    float temperature_3A;
+    float temperature_3B;
+    float I_conv_0;
+    float U_dc_0;
+    float I_conv_1;
+    float U_dc_1;
+    float I_conv_2;
+    float U_dc_2;
+    float I_conv_3;
+    float U_dc_3;
+    float I_grid;
+    float U_grid;
 };
 
 struct CPU1toCPU2_struct

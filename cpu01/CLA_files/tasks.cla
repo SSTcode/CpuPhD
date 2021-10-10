@@ -6,6 +6,43 @@ interrupt void Cla1Task1 ( void )
 {
     Timer_PWM.CLA_START_TASK = TIMESTAMP_PWM;
 
+    Meas.I_conv_0 = ((float)EMIF_CLA.I_conv_0 - Meas_offset.I_conv_0) * Meas_gain.I_conv_0;
+    Meas.I_conv_1 = ((float)EMIF_CLA.I_conv_1 - Meas_offset.I_conv_1) * Meas_gain.I_conv_1;
+    Meas.I_conv_2 = ((float)EMIF_CLA.I_conv_2 - Meas_offset.I_conv_2) * Meas_gain.I_conv_2;
+    Meas.I_conv_3 = ((float)EMIF_CLA.I_conv_3 - Meas_offset.I_conv_3) * Meas_gain.I_conv_3;
+
+    Meas.U_dc_0 = ((float)EMIF_CLA.U_dc_0 - Meas_offset.U_dc_0) * Meas_gain.U_dc_0;
+    Meas.U_dc_1 = ((float)EMIF_CLA.U_dc_1 - Meas_offset.U_dc_1) * Meas_gain.U_dc_1;
+    Meas.U_dc_2 = ((float)EMIF_CLA.U_dc_2 - Meas_offset.U_dc_2) * Meas_gain.U_dc_2;
+    Meas.U_dc_3 = ((float)EMIF_CLA.U_dc_3 - Meas_offset.U_dc_3) * Meas_gain.U_dc_3;
+
+    Meas.I_grid = ((float)EMIF_CLA.I_grid - Meas_offset.I_grid) * Meas_gain.I_grid;
+    Meas.U_grid = ((float)EMIF_CLA.U_grid - Meas_offset.U_grid) * Meas_gain.U_grid;
+
+    register float temp_gain = Meas_gain.temperature;
+    Meas.temperature_0A = (float)EMIF_CLA.temperature_0A * temp_gain;
+    Meas.temperature_0B = (float)EMIF_CLA.temperature_0B * temp_gain;
+    Meas.temperature_1A = (float)EMIF_CLA.temperature_1A * temp_gain;
+    Meas.temperature_1B = (float)EMIF_CLA.temperature_1B * temp_gain;
+    Meas.temperature_2A = (float)EMIF_CLA.temperature_2A * temp_gain;
+    Meas.temperature_2B = (float)EMIF_CLA.temperature_2B * temp_gain;
+    Meas.temperature_3A = (float)EMIF_CLA.temperature_3A * temp_gain;
+    Meas.temperature_3B = (float)EMIF_CLA.temperature_3B * temp_gain;
+
+    Cla1SoftIntRegs.SOFTINTFRC.all =
+    Cla1SoftIntRegs.SOFTINTEN.all = 1;
+
+    static volatile float duty[8];
+
+    ePWM_leg(&EPwm1Regs, duty[0]);
+    ePWM_leg(&EPwm2Regs, duty[1]);
+    ePWM_leg(&EPwm3Regs, duty[2]);
+    ePWM_leg(&EPwm4Regs, duty[3]);
+    ePWM_leg(&EPwm5Regs, duty[4]);
+    ePWM_leg(&EPwm6Regs, duty[5]);
+    ePWM_leg(&EPwm7Regs, duty[6]);
+    ePWM_leg(&EPwm8Regs, duty[7]);
+
     CIC2_filter_CLAasm(&CIC2_calibration, *CIC2_calibration_input.ptr);
 
     Timer_PWM.CLA_END_TASK = TIMESTAMP_PWM;

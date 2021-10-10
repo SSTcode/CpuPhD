@@ -32,7 +32,7 @@ enum spi_module_enum
     SPI_B,
     SPI_C
 };
-const enum spi_module_enum spi_module = SPI_B;
+const enum spi_module_enum spi_module = SPI_C;
 
 #define SpiRegs (*(&SpiaRegs+spi_module))
 

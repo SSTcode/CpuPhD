@@ -14,10 +14,13 @@ public:
     void clear_alarms();
     void GPIO();
     void CPUS();
-    void IPCBootCPU2_flash();
     void CLA();
+    void EMIF();
+    void IPCBootCPU2_flash();
     void Variables();
-    void PWM_sync();
+    void EPwm_TZclear(volatile struct EPWM_REGS *EPwmReg);
+    void EPwm(volatile struct EPWM_REGS *EPwmReg);
+    void TZ_EN(volatile struct EPWM_REGS *EPwmReg);
     void PWM_timestamp(volatile struct EPWM_REGS *EPwmReg);
     void PWMs();
 };

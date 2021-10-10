@@ -8,8 +8,9 @@
 #include "State.h"
 #include "ff.h"
 #include "diskio.h"
+#include <string.h>
 
-FATFS fs;           /* Filesystem object */
+//FATFS fs;           /* Filesystem object */
 
 #pragma CODE_SECTION(".TI.ramfunc");
 interrupt void NMI_INT()
@@ -26,7 +27,7 @@ void main()
     DINT;
 
     InitFlash();
-    InitSysPll(XTAL_OSC, IMULT_40, FMULT_0, PLLCLK_BY_2);
+    InitSysPll(XTAL_OSC, IMULT_20, FMULT_0, PLLCLK_BY_2);
 
     InitPieCtrl();
     IER = 0x0000;
@@ -34,7 +35,7 @@ void main()
     PieCtrlRegs.PIECTRL.bit.ENPIE = 1;
 
     EALLOW;
-    InputXbarRegs.INPUT5SELECT = PWM_SYNC;
+    InputXbarRegs.INPUT5SELECT = PWM_SYNC_CPU;
     XintRegs.XINT2CR.bit.POLARITY = 1;
     XintRegs.XINT2CR.bit.ENABLE = 1;
     PieVectTable.XINT2_INT = &HWI_func;
@@ -54,15 +55,18 @@ void main()
 
     Init.PWMs();
 
-//    FatFS_time.second_2 = 5;
-//    FatFS_time.minute = 10;
-//    FatFS_time.hour = 10;
-//    FatFS_time.day = 10;
-//    FatFS_time.month = 10;
-//    FatFS_time.year = 10 + 20;
-//
-//    f_mount(&fs, "", 1);
+    Init.EMIF();
 
+    //    FatFS_time.second_2 = 5;
+    //    FatFS_time.minute = 10;
+    //    FatFS_time.hour = 10;
+    //    FatFS_time.day = 10;
+    //    FatFS_time.month = 10;
+    //    FatFS_time.year = 10 + 20;
+    //
+    //    f_mount(&fs, "", 1);
+
+    memset(&Machine, 0, sizeof(Machine));
     Machine.state = Machine_init;
     while(1)
     {

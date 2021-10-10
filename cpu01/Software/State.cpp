@@ -94,7 +94,39 @@ void SMachine_Main()
         if(status.bit.SD_card_not_enough_data)
         {
             alarm.bit.Not_enough_data = 1;
-            Meas_gain.U_dc = 0.064f*(680.0*6.0 + 0.27)/(0.27)*(1.0 + (0.54/4.9))/(200.0*200.0);
+
+            float OSR = 400;
+            float truncation = 8.0f;
+
+            //1/(OSR*OSR)
+            //*0.064V
+            ///0.002Ohm
+            //*8.0 truncation to 16bits
+            float i_meas_gain = 0.064/(OSR*OSR)/0.002*truncation;
+
+            //1/(OSR*OSR)
+            //*0.064V
+            //Divider = 390/(3M + 390)
+            //Gain error R3/Rin = 1 + (390*2)/4.9k
+            //*8.0 truncation to 16bits
+
+            float r_down = (390.0 * 4.9e3)/(390.0 + 4.9e3);
+            float u_meas_gain = 0.064/(OSR*OSR)*(3e6 + r_down)/(r_down)*(1.0 + (390.0/2.5e3))*truncation;
+
+            Meas_gain.U_dc_3 =
+            Meas_gain.U_dc_2 =
+            Meas_gain.U_dc_1 =
+            Meas_gain.U_dc_0 = u_meas_gain;
+
+            Meas_gain.I_conv_3 =
+            Meas_gain.I_conv_2 =
+            Meas_gain.I_conv_1 =
+            Meas_gain.I_conv_0 = i_meas_gain;
+
+            Meas_gain.I_grid = i_meas_gain;
+            Meas_gain.U_grid = u_meas_gain;
+
+            Meas_gain.temperature = 0.01f;
         }
         else
         {

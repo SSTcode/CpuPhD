@@ -25,18 +25,19 @@ PAGE 0 :
    RAMGS3           : origin = 0x00F000,   length = 0x001000
    RAMGS4           : origin = 0x010000,   length = 0x001000
 
-   RAMGS5_12        : origin = 0x011000,   length = 0x008000
+   RAMGS5_14        : origin = 0x011000,   length = 0x00A000
    /*
    RAMGS5           : origin = 0x011000,   length = 0x001000
    RAMGS6           : origin = 0x012000,   length = 0x001000
+   RAMGS7           : origin = 0x013000,   length = 0x001000
    RAMGS8  			: origin = 0x014000,   length = 0x001000
    RAMGS9  			: origin = 0x015000,   length = 0x001000
    RAMGS10  		: origin = 0x016000,   length = 0x001000
    RAMGS11	 		: origin = 0x017000,   length = 0x001000
    RAMGS12  		: origin = 0x018000,   length = 0x001000
-	*/
    RAMGS13	 		: origin = 0x019000,   length = 0x001000
    RAMGS14  		: origin = 0x01A000,   length = 0x001000
+	*/
    RAMGS15	 		: origin = 0x01B000,   length = 0x001000
 
    /* Flash sectors */
@@ -102,7 +103,7 @@ SECTIONS
    .esysmem: 	>  RAMM1,   PAGE = 0
    .cio: 		>  RAMGS0_1,   PAGE = 0
 
-   Scope: 		>  RAMGS5_12,   PAGE = 0
+   Scope: 		>  RAMGS5_14,   PAGE = 0
 
    RAM_16BIT_ADDR: >>  RAMM0 | RAMGS0_1 | RAMGS2 | RAMGS3,   PAGE = 0
 

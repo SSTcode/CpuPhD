@@ -14,8 +14,8 @@
 extern "C" {
 #endif
 
-#define SCOPE_BUFFER 1250
-#define SCOPE_CHANNEL 2
+#define SCOPE_BUFFER 2000
+#define SCOPE_CHANNEL 10
 typedef float data_type;
 
 struct Scope_v1{
