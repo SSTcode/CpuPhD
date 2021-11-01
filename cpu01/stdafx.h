@@ -67,6 +67,15 @@ union ALARM
         Uint32 I_conv_3_L:1;
         Uint32 I_conv_3_H:1;
 
+        Uint32 I_inv_0_L:1;
+        Uint32 I_inv_0_H:1;
+        Uint32 I_inv_1_L:1;
+        Uint32 I_inv_1_H:1;
+        Uint32 I_inv_2_L:1;
+        Uint32 I_inv_2_H:1;
+        Uint32 I_inv_3_L:1;
+        Uint32 I_inv_3_H:1;
+
         Uint32 temperature_0A_H:1;
         Uint32 temperature_0B_H:1;
         Uint32 temperature_1A_H:1;
@@ -81,8 +90,7 @@ union ALARM
 
         Uint32 Not_enough_data : 1;
 
-        Uint32 rsvd1:5;
-        Uint32 rsvd2:32;
+        Uint32 rsvd1:29;
     }bit;
 };
 
@@ -127,6 +135,10 @@ struct Measurements_gain_offset_struct
     float U_dc_3;
     float I_grid;
     float U_grid;
+    float I_inv_0;
+    float I_inv_1;
+    float I_inv_2;
+    float I_inv_3;
 };
 
 struct Measurements_alarm_struct
@@ -135,6 +147,7 @@ struct Measurements_alarm_struct
     float I_conv;
     float I_grid;
     float temperature;
+    float I_inv;
 };
 
 union EMIF_union
@@ -163,6 +176,12 @@ union EMIF_union
         int16 padding4[12];
         int16 I_grid;
         int16 U_grid;
+        int16 I_inv_0;
+        int16 I_inv_1;
+        int16 padding5[12];
+        int16 I_inv_2;
+        int16 I_inv_3;
+
     }read;
 
     struct
@@ -191,6 +210,11 @@ struct EMIF_CLA_struct
     int16 U_dc_3;
     int16 I_grid;
     int16 U_grid;
+    int16 I_inv_0;
+    int16 I_inv_1;
+    int16 I_inv_2;
+    int16 I_inv_3;
+
 };
 
 //

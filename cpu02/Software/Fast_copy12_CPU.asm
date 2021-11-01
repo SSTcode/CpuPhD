@@ -33,6 +33,10 @@ _Fast_copy12_CPUasm:
 		MOV32	*(#_Meas.U_dc_3), *--XAR4
 		MOV32	*(#_Meas.I_grid), *--XAR4
 		MOV32	*(#_Meas.U_grid), *--XAR4
+		MOV32	*(#_Meas.I_inv_0), *--XAR4
+		MOV32	*(#_Meas.I_inv_1), *--XAR4
+		MOV32	*(#_Meas.I_inv_2), *--XAR4
+		MOV32	*(#_Meas.I_inv_3), *--XAR4
 
 		IACK  	#0x0001
 

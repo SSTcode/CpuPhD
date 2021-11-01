@@ -4,16 +4,17 @@ extern void ePWM_leg(volatile struct EPWM_REGS *EPwmRegT1T2, float duty);
 
 interrupt void Cla1Task1 ( void )
 {
-    Inverter_calc();
-
     Timer_PWM.CLA_START_TASK = TIMESTAMP_PWM;
-
-
 
     Meas.I_conv_0 = ((float)EMIF_CLA.I_conv_0 - Meas_offset.I_conv_0) * Meas_gain.I_conv_0;
     Meas.I_conv_1 = ((float)EMIF_CLA.I_conv_1 - Meas_offset.I_conv_1) * Meas_gain.I_conv_1;
     Meas.I_conv_2 = ((float)EMIF_CLA.I_conv_2 - Meas_offset.I_conv_2) * Meas_gain.I_conv_2;
     Meas.I_conv_3 = ((float)EMIF_CLA.I_conv_3 - Meas_offset.I_conv_3) * Meas_gain.I_conv_3;
+
+    Meas.I_inv_0 = ((float)EMIF_CLA.I_inv_0 - Meas_offset.I_inv_0) * Meas_gain.I_inv_0;
+    Meas.I_inv_1 = ((float)EMIF_CLA.I_inv_1 - Meas_offset.I_inv_1) * Meas_gain.I_inv_1;
+    Meas.I_inv_2 = ((float)EMIF_CLA.I_inv_2 - Meas_offset.I_inv_2) * Meas_gain.I_inv_2;
+    Meas.I_inv_3 = ((float)EMIF_CLA.I_inv_3 - Meas_offset.I_inv_3) * Meas_gain.I_inv_3;
 
     Meas.U_dc_0 = ((float)EMIF_CLA.U_dc_0 - Meas_offset.U_dc_0) * Meas_gain.U_dc_0;
     Meas.U_dc_1 = ((float)EMIF_CLA.U_dc_1 - Meas_offset.U_dc_1) * Meas_gain.U_dc_1;
@@ -36,9 +37,9 @@ interrupt void Cla1Task1 ( void )
     Cla1SoftIntRegs.SOFTINTFRC.all =
     Cla1SoftIntRegs.SOFTINTEN.all = 1;
 
+    Inverter_calc();
+
     static volatile float duty[8];
-
-
 
     ePWM_leg(&EPwm1Regs, duty[0]);
     ePWM_leg(&EPwm2Regs, duty[1]);

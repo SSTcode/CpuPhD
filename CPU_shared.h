@@ -30,6 +30,12 @@ struct Measurements_struct
     float U_dc_3;
     float I_grid;
     float U_grid;
+    float I_inv_0;
+    float I_inv_1;
+    float I_inv_2;
+    float I_inv_3;
+
+
 };
 
 struct CPU1toCPU2_struct

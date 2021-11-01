@@ -53,6 +53,9 @@ _Fast_copy12_CPUasm:
 		MOV32	*(#_EMIF_CLA.I_conv_3), *XAR0++
 		ADDB	XAR0, #12
 		MOV32	*(#_EMIF_CLA.I_grid), *XAR0++
+		MOV32	*(#_EMIF_CLA.I_inv_0), *XAR0++
+		ADDB	XAR0, #12
+		MOV32	*(#_EMIF_CLA.I_inv_2), *XAR0++
 
 		IACK  	#0x0001
 
@@ -82,6 +85,10 @@ wait2:	TBIT	@_PieCtrlRegs.PIEIFR11, #0
 		MOV32	*--XAR4, *(#_Meas.U_dc_3)
 		MOV32	*--XAR4, *(#_Meas.I_grid)
 		MOV32	*--XAR4, *(#_Meas.U_grid)
+		MOV32	*--XAR4, *(#_Meas.I_inv_0)
+		MOV32	*--XAR4, *(#_Meas.I_inv_1)
+		MOV32	*--XAR4, *(#_Meas.I_inv_2)
+		MOV32	*--XAR4, *(#_Meas.I_inv_3)
 
 		MOVW    DP, #_IpcRegs
 		TSET	@_IpcRegs.IPCSET, #3

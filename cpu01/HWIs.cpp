@@ -41,6 +41,15 @@ interrupt void HWI_func()
         if(Meas.I_conv_3 < Meas_alarm_L.I_conv) alarm.bit.I_conv_3_L = 1;
         if(Meas.I_conv_3 > Meas_alarm_H.I_conv) alarm.bit.I_conv_3_H = 1;
 
+        if(Meas.I_inv_0 < Meas_alarm_L.I_inv) alarm.bit.I_inv_0_L = 1;
+        if(Meas.I_inv_0 > Meas_alarm_H.I_inv) alarm.bit.I_inv_0_H = 1;
+        if(Meas.I_inv_1 < Meas_alarm_L.I_inv) alarm.bit.I_inv_1_L = 1;
+        if(Meas.I_inv_1 > Meas_alarm_H.I_inv) alarm.bit.I_inv_1_H = 1;
+        if(Meas.I_inv_2 < Meas_alarm_L.I_inv) alarm.bit.I_inv_2_L = 1;
+        if(Meas.I_inv_2 > Meas_alarm_H.I_inv) alarm.bit.I_inv_2_H = 1;
+        if(Meas.I_inv_3 < Meas_alarm_L.I_inv) alarm.bit.I_inv_3_L = 1;
+        if(Meas.I_inv_3 > Meas_alarm_H.I_inv) alarm.bit.I_inv_3_H = 1;
+
         if(Meas.I_grid < Meas_alarm_L.I_grid) alarm.bit.I_grid_L = 1;
         if(Meas.I_grid > Meas_alarm_H.I_grid) alarm.bit.I_grid_H = 1;
 
