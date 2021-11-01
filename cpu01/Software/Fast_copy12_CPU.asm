@@ -15,15 +15,43 @@
 
 _Fast_copy12_CPUasm:
 
-		MOVL	XAR0, #_EMIF_mem.read
+		;MOVL	XAR0, #_EMIF_CLA
+		MOVL	XAR0, #_EMIF_mem
+
+		;MOV	*(#_EMIF_CLA.temperature_0A), *XAR0++
+		;MOV	*(#_EMIF_CLA.temperature_0B), *XAR0++
+		;MOV	*(#_EMIF_CLA.temperature_1A), *XAR0++
+		;MOV	*(#_EMIF_CLA.temperature_1B), *XAR0++
+		;ADDB	XAR0, #12
+		;MOV	*(#_EMIF_CLA.temperature_2A), *XAR0++
+		;MOV	*(#_EMIF_CLA.temperature_2B), *XAR0++
+		;MOV	*(#_EMIF_CLA.temperature_3A), *XAR0++
+		;MOV	*(#_EMIF_CLA.temperature_3B), *XAR0++
+		;ADDB	XAR0, #12
+		;MOV	*(#_EMIF_CLA.I_conv_0), *XAR0++
+		;MOV	*(#_EMIF_CLA.U_dc_0), *XAR0++
+		;MOV	*(#_EMIF_CLA.I_conv_1), *XAR0++
+		;MOV	*(#_EMIF_CLA.U_dc_1), *XAR0++
+		;ADDB	XAR0, #12
+		;MOV	*(#_EMIF_CLA.I_conv_2), *XAR0++
+		;MOV	*(#_EMIF_CLA.U_dc_2), *XAR0++
+		;MOV	*(#_EMIF_CLA.I_conv_3), *XAR0++
+		;MOV	*(#_EMIF_CLA.U_dc_3), *XAR0++
+		;ADDB	XAR0, #12
+		;MOV	*(#_EMIF_CLA.I_grid), *XAR0++
+		;MOV	*(#_EMIF_CLA.U_grid), *XAR0++
 		MOV32	*(#_EMIF_CLA.temperature_0A), *XAR0++
 		MOV32	*(#_EMIF_CLA.temperature_1A), *XAR0++
+		ADDB	XAR0, #12
 		MOV32	*(#_EMIF_CLA.temperature_2A), *XAR0++
 		MOV32	*(#_EMIF_CLA.temperature_3A), *XAR0++
+		ADDB	XAR0, #12
 		MOV32	*(#_EMIF_CLA.I_conv_0), *XAR0++
 		MOV32	*(#_EMIF_CLA.I_conv_1), *XAR0++
+		ADDB	XAR0, #12
 		MOV32	*(#_EMIF_CLA.I_conv_2), *XAR0++
 		MOV32	*(#_EMIF_CLA.I_conv_3), *XAR0++
+		ADDB	XAR0, #12
 		MOV32	*(#_EMIF_CLA.I_grid), *XAR0++
 
 		IACK  	#0x0001

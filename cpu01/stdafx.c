@@ -19,6 +19,8 @@ struct Timer_PWM_struct Timer_PWM;
 struct CIC2_struct CIC2_calibration;
 CLA_FPTR CIC2_calibration_input;
 
+struct INVERTER_struct INV;
+
 struct Measurements_struct Meas;
 struct Measurements_gain_offset_struct Meas_gain;
 struct Measurements_gain_offset_struct Meas_offset;

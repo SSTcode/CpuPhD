@@ -104,7 +104,7 @@ SECTIONS
    .cio: 		>  RAMGS0_1,   PAGE = 0
 
    Scope: 		>  RAMGS5_14,   PAGE = 0
-
+   EMIF_mem: 	>> EMIF1_CS2n, PAGE = 0
    RAM_16BIT_ADDR: >>  RAMM0 | RAMGS0_1 | RAMGS2 | RAMGS3,   PAGE = 0
 
 ///////////////////////////////////////////////////////////////////////////////

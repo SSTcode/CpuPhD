@@ -85,26 +85,29 @@ GPIO_SetupPinOptions(i, GPIOreg[i].dir, GPIOreg[i].options)
 #define GPIO_CLEAR2(pin, val) *(&GpioDataRegs.GPACLEAR.all + (pin / 32)*GPY_DATA_OFFSET) = (Uint32)val << (pin % 32)
 #define GPIO_TOGGLE2(pin, val) *(&GpioDataRegs.GPATOGGLE.all + (pin / 32)*GPY_DATA_OFFSET) = (Uint32)val << (pin % 32)
 
-#define EM1D0   85
-#define EM1D1   83
-#define EM1D2   82
-#define EM1D3   81
-#define EM1D4   80
-#define EM1D5   79
-#define EM1D6   78
-#define EM1D7   77
-#define EM1D8   76
-#define EM1D9   75
-#define EM1D10  74
-#define EM1D11  73
-#define EM1D12  72
-#define EM1D13  71
-#define EM1D14  70
-#define EM1D15  69
+#define EM1D0   85  //FPGA P1
+#define EM1D1   83  //FPGA L5
+#define EM1D2   82  //FPGA J2
+#define EM1D3   81  //FPGA J1
+#define EM1D4   80  //FPGA K6
+#define EM1D5   79  //FPGA N3
+#define EM1D6   78  //FPGA K2
+#define EM1D7   77  //FPGA K1
+#define EM1D8   76  //FPGA L7
+#define EM1D9   75  //FPGA P4
+#define EM1D10  74  //FPGA N2
+#define EM1D11  73  //FPGA L1
+#define EM1D12  72  //FPGA L2
+#define EM1D13  71  //FPGA M2
+#define EM1D14  70  //FPGA M1
+#define EM1D15  69  //FPGA N1
 
-#define EM1CS2  34
-#define EM1WE   31
-#define EM1OE   37
+#define EM1CS2  34  //FPGA T10
+#define EM1WE   31  //FPGA P1
+#define EM1OE   37  //FPGA T6 EMIF_EO
+
+#define EM1CLK  30  //EMIF_CLK
+
 
 #define EM1BA1  92
 #define EM1A0   38
@@ -152,6 +155,11 @@ GPIO_SetupPinOptions(i, GPIOreg[i].dir, GPIOreg[i].options)
 #define SD_SPISIMO_PIN 100
 #define SD_SPISOMI_PIN 101
 
+#define LED1_ON_CPU 110
+#define LED2_ON_CPU 111
+#define LED3_ON_CPU 112
+
+
 #define RELAY_H1_DC_CPU 0
 #define RELAY_H2_DC_CPU 2
 #define RELAY_H3_DC_CPU 4
@@ -161,6 +169,7 @@ GPIO_SetupPinOptions(i, GPIOreg[i].dir, GPIOreg[i].options)
 #define RELAY_H2_GRID_CPU 3
 #define RELAY_H3_GRID_CPU 5
 #define RELAY_H4_GRID_CPU 7
+
 
 #define PWM_H1_ON_CPU 17
 #define PWM_H2_ON_CPU 18

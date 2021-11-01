@@ -4,7 +4,11 @@ extern void ePWM_leg(volatile struct EPWM_REGS *EPwmRegT1T2, float duty);
 
 interrupt void Cla1Task1 ( void )
 {
+    Inverter_calc();
+
     Timer_PWM.CLA_START_TASK = TIMESTAMP_PWM;
+
+
 
     Meas.I_conv_0 = ((float)EMIF_CLA.I_conv_0 - Meas_offset.I_conv_0) * Meas_gain.I_conv_0;
     Meas.I_conv_1 = ((float)EMIF_CLA.I_conv_1 - Meas_offset.I_conv_1) * Meas_gain.I_conv_1;
@@ -34,6 +38,8 @@ interrupt void Cla1Task1 ( void )
 
     static volatile float duty[8];
 
+
+
     ePWM_leg(&EPwm1Regs, duty[0]);
     ePWM_leg(&EPwm2Regs, duty[1]);
     ePWM_leg(&EPwm3Regs, duty[2]);
@@ -43,9 +49,16 @@ interrupt void Cla1Task1 ( void )
     ePWM_leg(&EPwm7Regs, duty[6]);
     ePWM_leg(&EPwm8Regs, duty[7]);
 
+
+    //GPIO_WRITE(PWM_H1_ON_CPU, 1);
+
+    //GPIO_WRITE(RELAY_H1_DC_CPU, 1);
+
+
     CIC2_filter_CLAasm(&CIC2_calibration, *CIC2_calibration_input.ptr);
 
     Timer_PWM.CLA_END_TASK = TIMESTAMP_PWM;
+
 }
 
 interrupt void Cla1Task2 ( void )

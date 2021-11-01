@@ -45,25 +45,21 @@ void Init_class::CLA()
     EALLOW;
 
     CpuSysRegs.PCLKCR0.bit.CLA1 = 1;
-
     //
     // Initialize and wait for CLA1ToCPUMsgRAM
     //
     MemCfgRegs.MSGxINIT.bit.INIT_CLA1TOCPU = 1;
     while(MemCfgRegs.MSGxINITDONE.bit.INITDONE_CLA1TOCPU != 1){};
-
     //
     // Initialize and wait for CPUToCLA1MsgRAM
     //
     MemCfgRegs.MSGxINIT.bit.INIT_CPUTOCLA1 = 1;
     while(MemCfgRegs.MSGxINITDONE.bit.INITDONE_CPUTOCLA1 != 1){};
-
     //
     // Select LS4RAM and LS5RAM to be the programming space for the CLA
     // First configure the CLA to be the master for LS4 and LS5 and then
     // set the space to be a program block
     //
-
     MemCfgRegs.LSxMSEL.bit.MSEL_LS0 = 1;
     MemCfgRegs.LSxCLAPGM.bit.CLAPGM_LS0 = 1;
 
@@ -72,7 +68,6 @@ void Init_class::CLA()
 
     MemCfgRegs.LSxMSEL.bit.MSEL_LS2 = 1;
     MemCfgRegs.LSxCLAPGM.bit.CLAPGM_LS2 = 1;
-
     //
     // Next configure LS0RAM and LS1RAM as data spaces for the CLA
     // First configure the CLA to be the master for LS0(1) and then
@@ -127,7 +122,7 @@ void Init_class::CPUS()
 {
     EALLOW;
 
-    DevCfgRegs.CPUSEL0.bit.EPWM11 = 1;
+    DevCfgRegs.CPUSEL0.bit.EPWM11 = 1;     // CPU Select register for common peripherals
 
     MemCfgRegs.GSxMSEL.bit.MSEL_GS0  = 0;
     MemCfgRegs.GSxMSEL.bit.MSEL_GS1  = 0;
@@ -168,9 +163,11 @@ void Init_class::EMIF()
     GPIO_Setup(EM1D14);
     GPIO_Setup(EM1D15);
 
-    GPIO_Setup(EM1CS2);
-    GPIO_Setup(EM1WE );
-    GPIO_Setup(EM1OE );
+    GPIO_Setup(EM1CS2); // CS2 low when operation active
+    GPIO_Setup(EM1WE ); // WE low when write active
+    GPIO_Setup(EM1OE ); // OE low when read active
+
+    //GPIO_Setup(EM1CLK ); // CLK
 
     GPIO_Setup(EM1BA1);
     GPIO_Setup(EM1A0 );
@@ -186,13 +183,13 @@ void Init_class::EMIF()
     GPIO_Setup(EM1A10);
     GPIO_Setup(EM1A11);
 
-    EALLOW;
-
-    CpuSysRegs.PCLKCR1.bit.EMIF1            = 0x1;
-    ClkCfgRegs.PERCLKDIVSEL.bit.EMIF1CLKDIV = 0x0;
-
     Uint16  ErrCount = 0;
-
+    //
+    // Configure to run EMIF1 on full Rate. (EMIF1CLK = CPU1SYSCLK). SysCtl_setEMIF1ClockDivider
+    //
+EALLOW;
+    CpuSysRegs.PCLKCR1.bit.EMIF1            = 0x1;//EMIF1 Clock Enable bit: 1: Module clock is turned-on
+    ClkCfgRegs.PERCLKDIVSEL.bit.EMIF1CLKDIV = 0x0;//EMIF1 module run with a /1 or /2 clock. For single core device. 0: /1 of CPU1.SYSCLK is selected. For Dual core device 0: /1 of PLLSYSCLK is selected
     //
     // Grab EMIF1 For CPU1. EMIF_selectMaster
     //
@@ -221,19 +218,18 @@ void Init_class::EMIF()
     {
         ErrCount++;
     }
-
-    Emif1Regs.ASYNC_CS2_CR.bit.SS       = 0;
-    Emif1Regs.ASYNC_CS2_CR.bit.EW       = 0;
-    Emif1Regs.ASYNC_CS2_CR.bit.W_SETUP  = 0;
-    Emif1Regs.ASYNC_CS2_CR.bit.W_STROBE = 0;
-    Emif1Regs.ASYNC_CS2_CR.bit.W_HOLD   = 0;
-    Emif1Regs.ASYNC_CS2_CR.bit.R_SETUP  = 0;
-    Emif1Regs.ASYNC_CS2_CR.bit.R_STROBE = 4;
-    Emif1Regs.ASYNC_CS2_CR.bit.R_HOLD   = 0;
-    Emif1Regs.ASYNC_CS2_CR.bit.TA       = 0;
-    Emif1Regs.ASYNC_CS2_CR.bit.ASIZE    = 1;
-
-    EDIS;
+    // Async 1 (EMxCS2n) Config Register the access timing for CS2 space
+    Emif1Regs.ASYNC_CS2_CR.bit.SS       = 0;//Select Strobe mode. Set to 1 if chip selects need to have write or read strobe timing
+    Emif1Regs.ASYNC_CS2_CR.bit.EW       = 0;//Extend Wait mode. Set to 1 if extended asynchronous cycles are required based on EMxWAIT.
+    Emif1Regs.ASYNC_CS2_CR.bit.W_SETUP  = 0;//Write Strobe Setup cycles
+    Emif1Regs.ASYNC_CS2_CR.bit.W_STROBE = 0;//Write Strobe Duration cycles
+    Emif1Regs.ASYNC_CS2_CR.bit.W_HOLD   = 0;//Write Strobe Hold cycles
+    Emif1Regs.ASYNC_CS2_CR.bit.R_SETUP  = 0;//Read Strobe Setup cycles.
+    Emif1Regs.ASYNC_CS2_CR.bit.R_STROBE = 4;//Read Strobe Duration cycles. Number of EMxCLK cycles for which EMxOEn is held active,
+    Emif1Regs.ASYNC_CS2_CR.bit.R_HOLD   = 0;//Read Strobe Hold cycles
+    Emif1Regs.ASYNC_CS2_CR.bit.TA       = 0;// Turn Around time of 2 Emif Clock
+    Emif1Regs.ASYNC_CS2_CR.bit.ASIZE    = 1;//Asynchronous Memory Size. 01: 16 Bit data bus.
+EDIS;
 }
 
 void Init_class::clear_alarms()
@@ -284,7 +280,7 @@ void Init_class::TZ_EN(volatile struct EPWM_REGS *EPwmReg)
 
     //    EPwmReg->TZSEL.bit.OSHT1 = 1;
 //    EPwmReg->TZSEL.bit.OSHT3 = 1;
-    EPwmReg->TZSEL.bit.OSHT5 = 1;
+    EPwmReg->TZSEL.bit.OSHT5 = 1;//ESTOP0 protection - against breakpoints
     EPwmReg->TZSEL.bit.OSHT6 = 1;
     EDIS;
 }
@@ -393,7 +389,7 @@ void Init_class::PWMs()
     EPwm(&EPwm6Regs);
     EPwm(&EPwm7Regs);
     EPwm(&EPwm8Regs);
-    TZ_EN(&EPwm9Regs);
+    TZ_EN(&EPwm9Regs);//TZ_EN_CPU signal must be high. This signal is controlled by EPwm9Regs:
     PWM_timestamp(&EPwm10Regs);
 
     GPIO_Setup(TZ_EN_CPU);
@@ -419,17 +415,21 @@ void Init_class::PWMs()
 
 void Init_class::Variables()
 {
+
+    INV.counter = 0.0f;
+
+
     Meas_alarm_H.temperature = 65.0f;
-    Meas_alarm_L.temperature = 0.0f;
+    Meas_alarm_L.temperature = -100.0f;
 
     Meas_alarm_H.U_dc = 690.0f;
-    Meas_alarm_L.U_dc = -50.0f;
+    Meas_alarm_L.U_dc = -500.0f;
 
-    Meas_alarm_H.I_conv = 16.0f;
-    Meas_alarm_L.I_conv = -16.0f;
+    Meas_alarm_H.I_conv = 160.0f;
+    Meas_alarm_L.I_conv = -160.0f;
 
-    Meas_alarm_H.I_grid = 16.0f;
-    Meas_alarm_L.I_grid = -16.0f;
+    Meas_alarm_H.I_grid = 160.0f;
+    Meas_alarm_L.I_grid = -160.0f;
 
     CIC2_calibration.decimation_ratio = 5.0f;
     CIC2_calibration.decimation_counter = 4.0f;
@@ -470,8 +470,8 @@ const struct GPIO_struct GPIOreg[169] =
 
 [EM1BA1] = {HIGH, MUX3, CPU1_IO, INPUT, ASYNC},
 [EM1A0 ] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
-[EM1A1 ] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
-[EM1A2 ] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
+[EM1A1 ] = {HIGH, MUX0, CPU1_IO, OUTPUT, ASYNC},
+[EM1A2 ] = {HIGH, MUX0, CPU1_IO, OUTPUT, ASYNC},
 [EM1A3 ] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
 [EM1A4 ] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
 [EM1A5 ] = {HIGH, MUX2, CPU1_IO, INPUT, ASYNC},
@@ -516,6 +516,12 @@ const struct GPIO_struct GPIOreg[169] =
 [PWM_H2_ON_CPU] = {LOW, MUX0, CPU1CLA_IO, OUTPUT, PUSHPULL},
 [PWM_H3_ON_CPU] = {LOW, MUX0, CPU1CLA_IO, OUTPUT, PUSHPULL},
 [PWM_H4_ON_CPU] = {LOW, MUX0, CPU1CLA_IO, OUTPUT, PUSHPULL},
+
+[LED1_ON_CPU] = {LOW, MUX0, CPU1CLA_IO, OUTPUT, PUSHPULL},
+[LED1_ON_CPU] = {LOW, MUX0, CPU1CLA_IO, OUTPUT, PUSHPULL},
+[LED1_ON_CPU] = {LOW, MUX0, CPU1CLA_IO, OUTPUT, PUSHPULL},
+
+
 
 };
 

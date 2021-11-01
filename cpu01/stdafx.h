@@ -20,7 +20,8 @@ typedef union {
 #include "CLA_math/CLAmath.h"
 #include <stdint.h>
 
-#include "Controllers.h"
+#include <Controllers.h>
+#include <Inverter.h>
 #include "CPU_shared.h"
 
 #ifdef __cplusplus
@@ -144,18 +145,22 @@ union EMIF_union
         int16 temperature_0B;
         int16 temperature_1A;
         int16 temperature_1B;
+        int16 padding1[12];
         int16 temperature_2A;
         int16 temperature_2B;
         int16 temperature_3A;
         int16 temperature_3B;
+        int16 padding2[12];
         int16 I_conv_0;
         int16 U_dc_0;
         int16 I_conv_1;
         int16 U_dc_1;
+        int16 padding3[12];
         int16 I_conv_2;
         int16 U_dc_2;
         int16 I_conv_3;
         int16 U_dc_3;
+        int16 padding4[12];
         int16 I_grid;
         int16 U_grid;
     }read;

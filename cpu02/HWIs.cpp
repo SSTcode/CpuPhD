@@ -10,6 +10,7 @@
 #include "HWIs.h"
 
 #pragma CODE_SECTION(".TI.ramfunc");
+
 interrupt void HWI_func()
 {
     Timer_PWM.CPU_START_HWI = TIMESTAMP_PWM;

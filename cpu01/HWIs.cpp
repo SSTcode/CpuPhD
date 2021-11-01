@@ -9,6 +9,7 @@
 #include "HWIs.h"
 #include <Scope.h>
 #include <State.h>
+#include <string.h>
 
 #pragma CODE_SECTION(".TI.ramfunc");
 interrupt void HWI_func()
@@ -16,7 +17,7 @@ interrupt void HWI_func()
     //#TODO change in FPGA TZ_EN pin number to PWM9A
 
     Timer_PWM.CPU_START_HWI = TIMESTAMP_PWM;
-
+    //memcpy((Uint16 *)&EMIF_CLA, (Uint16 *)&EMIF_mem.read, sizeof(EMIF_CLA));
     Fast_copy12_CPUasm();
 
     if(!status.bit.Init_done);
@@ -51,6 +52,8 @@ interrupt void HWI_func()
         if(Meas.temperature_2B > Meas_alarm_H.temperature) alarm.bit.temperature_2B_H = 1;
         if(Meas.temperature_3A > Meas_alarm_H.temperature) alarm.bit.temperature_3A_H = 1;
         if(Meas.temperature_3B > Meas_alarm_H.temperature) alarm.bit.temperature_3B_H = 1;
+
+        // the hierarchy alarm bits
 
         if((alarm.all[0] | alarm.all[1]) && !(alarm_snapshot.all[0] | alarm_snapshot.all[1]))
         {
@@ -97,7 +100,7 @@ interrupt void HWI_func()
     //        Scope_trigger(*trigger_pointer, -trigger_val, 1);
     //        if(VoltDip.Urms_grid.a_counter) Scope_trigger_unc();
     //        if(Machine.state == Machine_Lgrid_meas) Scope_trigger_unc();
-            if(alarm.all[0] | alarm.all[1]) Scope_trigger_unc();
+            //if(alarm.all[0] | alarm.all[1]) Scope_trigger_unc();
             Scope_task();
             decimation = 0;
         }

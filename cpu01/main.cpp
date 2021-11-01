@@ -74,7 +74,7 @@ void main()
         SMachine_Background();
 
         static Uint64 benchmark_timer;
-        static float benchmark;
+        static volatile float benchmark;
         benchmark = (float)(ReadIpcTimer() - benchmark_timer)*(1.0f/200000000.0f);
         benchmark_timer = ReadIpcTimer();
     }
