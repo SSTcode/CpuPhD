@@ -22,15 +22,17 @@ struct INVERTER_struct
     float I_arm2_filter_coeff;
 
     float RDY;
+    float enable;
+    float theta;
 
     float Ts;
-    float Lgrid;
-    float Rgrid;
-    float counter;
-
+    float L_conv;
+    float R_conv;
 
     float duty[2];
     float deadtime;
+
+    //struct CIC_struct I_arm_CIC, U_dc_CIC;
 
     enum INVERTER_enum state, state_last;
 };

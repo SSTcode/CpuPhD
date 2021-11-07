@@ -46,11 +46,11 @@ _Fast_copy12_CPUasm:
 		MOV32	*(#_EMIF_CLA.temperature_2A), *XAR0++
 		MOV32	*(#_EMIF_CLA.temperature_3A), *XAR0++
 		ADDB	XAR0, #12
-		MOV32	*(#_EMIF_CLA.I_conv_0), *XAR0++
-		MOV32	*(#_EMIF_CLA.I_conv_1), *XAR0++
+		MOV32	*(#_EMIF_CLA.U_dc_0), *XAR0++
+		MOV32	*(#_EMIF_CLA.U_dc_1), *XAR0++
 		ADDB	XAR0, #12
-		MOV32	*(#_EMIF_CLA.I_conv_2), *XAR0++
-		MOV32	*(#_EMIF_CLA.I_conv_3), *XAR0++
+		MOV32	*(#_EMIF_CLA.U_dc_2), *XAR0++
+		MOV32	*(#_EMIF_CLA.U_dc_3), *XAR0++
 		ADDB	XAR0, #12
 		MOV32	*(#_EMIF_CLA.I_grid), *XAR0++
 		MOV32	*(#_EMIF_CLA.I_inv_0), *XAR0++

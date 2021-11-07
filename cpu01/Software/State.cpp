@@ -104,13 +104,13 @@ void SMachine_Main()
             //*0.064V
             ///0.002Ohm
             //*8.0 truncation to 16bits
-           // float i_meas_gain = 0.064/(OSR*OSR)/0.002*truncation;
+            float i_meas_gain = 0.064/(OSR*OSR)/0.002*truncation;
 
             //2/(200*200) = 0.0000125
             //*0.064V = 0.0000032
 
             ///0.002Ohm = 0.0016 //shunt resistor
-            float i_meas_gain = (2.0/(200.0*200.0)*0.064)/0.002;//0.0016;
+           // float i_meas_gain = (2.0/(200.0*200.0)*0.064)/0.002;//0.0016;
 
 
             //1/(OSR*OSR)
@@ -120,7 +120,7 @@ void SMachine_Main()
             //*8.0 truncation to 16bits
 
             float r_down = (390.0 * 4.9e3)/(390.0 + 4.9e3);
-            float u_meas_gain = 0.064/(OSR*OSR)*(3e6 + r_down)/(r_down)*(1.0 + (390.0/2.5e3))*truncation;
+            float u_meas_gain = 10.0f/10.9f*0.064/(OSR*OSR)*(3e6 + r_down)/(r_down)*(1.0 + (390.0/2.5e3))*truncation;
             //390/(1M*3 + 390) //Divider
             //(2.5/(2.5+0.39)) //R3 error
            // float u_meas_gain = (2.0/(200.0*200.0)*0.064)/(0.39/(1000.0*3.0 + 0.39))/(2.5/(2.5+0.39));
@@ -128,7 +128,7 @@ void SMachine_Main()
             Meas_gain.U_dc_3 =
             Meas_gain.U_dc_2 =
             Meas_gain.U_dc_1 =
-            Meas_gain.U_dc_0 = u_meas_gain;
+            Meas_gain.U_dc_0 = -u_meas_gain;
 
             Meas_gain.I_conv_3 =
             Meas_gain.I_conv_2 =
@@ -138,7 +138,7 @@ void SMachine_Main()
             Meas_gain.I_inv_3 =
             Meas_gain.I_inv_2 =
             Meas_gain.I_inv_1 =
-            Meas_gain.I_inv_0 = i_meas_gain;
+            Meas_gain.I_inv_0 = i_meas_gain*1,84;
 
             Meas_gain.I_grid = i_meas_gain;
             Meas_gain.U_grid = u_meas_gain;
@@ -194,13 +194,13 @@ void SMachine_Main()
 
     case Machine_idle:
     {
+        INV.enable = 0.0f;
         if(Machine.state_last != Machine.state)
         {
             Machine.state_last = Machine.state;
-
         }
 
-        Machine.state = Machine_start;
+        //Machine.state = Machine_start;
         break;
     }
 
@@ -215,13 +215,14 @@ void SMachine_Main()
             DELAY_US(100);
 
             Scope_start();
+            INV.enable = 1.0f;
         }
-        if(1)
+        if(INV.RDY)
         {
             Machine.state = Machine_operational;
         }
         if(!1) Machine.state = Machine_idle;
-        if(alarm.all[0] | alarm.all[1]) Machine.state = Machine_cleanup;
+        if(alarm.all[0] | alarm.all[1]) Machine.state = Machine_cleanup;//alar is it present
         break;
     }
 

@@ -36,24 +36,21 @@ interrupt void Cla1Task1 ( void )
 
     Cla1SoftIntRegs.SOFTINTFRC.all =
     Cla1SoftIntRegs.SOFTINTEN.all = 1;
+    //float enable = 1;
+    //PLL_calc(enable);
 
     Inverter_calc();
 
     static volatile float duty[8];
 
-    ePWM_leg(&EPwm1Regs, duty[0]);
-    ePWM_leg(&EPwm2Regs, duty[1]);
+    ePWM_leg(&EPwm1Regs, INV.duty[0]);
+    ePWM_leg(&EPwm2Regs, INV.duty[1]);
     ePWM_leg(&EPwm3Regs, duty[2]);
     ePWM_leg(&EPwm4Regs, duty[3]);
     ePWM_leg(&EPwm5Regs, duty[4]);
     ePWM_leg(&EPwm6Regs, duty[5]);
     ePWM_leg(&EPwm7Regs, duty[6]);
     ePWM_leg(&EPwm8Regs, duty[7]);
-
-
-    //GPIO_WRITE(PWM_H1_ON_CPU, 1);
-
-    //GPIO_WRITE(RELAY_H1_DC_CPU, 1);
 
 
     CIC2_filter_CLAasm(&CIC2_calibration, *CIC2_calibration_input.ptr);

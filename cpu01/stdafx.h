@@ -21,6 +21,7 @@ typedef union {
 #include <stdint.h>
 
 #include <Controllers.h>
+#include <PLL.h>
 #include <Inverter.h>
 #include "CPU_shared.h"
 
@@ -164,15 +165,15 @@ union EMIF_union
         int16 temperature_3A;
         int16 temperature_3B;
         int16 padding2[12];
-        int16 I_conv_0;
         int16 U_dc_0;
-        int16 I_conv_1;
+        int16 I_conv_0;
         int16 U_dc_1;
+        int16 I_conv_1;
         int16 padding3[12];
-        int16 I_conv_2;
         int16 U_dc_2;
-        int16 I_conv_3;
+        int16 I_conv_2;
         int16 U_dc_3;
+        int16 I_conv_3;
         int16 padding4[12];
         int16 I_grid;
         int16 U_grid;
@@ -200,14 +201,14 @@ struct EMIF_CLA_struct
     int16 temperature_2B;
     int16 temperature_3A;
     int16 temperature_3B;
-    int16 I_conv_0;
     int16 U_dc_0;
-    int16 I_conv_1;
+    int16 I_conv_0;
     int16 U_dc_1;
-    int16 I_conv_2;
+    int16 I_conv_1;
     int16 U_dc_2;
-    int16 I_conv_3;
+    int16 I_conv_2;
     int16 U_dc_3;
+    int16 I_conv_3;
     int16 I_grid;
     int16 U_grid;
     int16 I_inv_0;

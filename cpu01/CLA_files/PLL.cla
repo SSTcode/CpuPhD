@@ -1,0 +1,121 @@
+#include "stdafx.h"
+
+struct PLL_struct PLL;
+
+void PLL_calc()
+{
+
+
+        switch (PLL.state)
+        {
+        case PLL_omega_init:
+        {
+            PLL.state_last = PLL.state;
+
+            PLL.RDY = 0;
+            PLL.PI.integrator =
+            PLL.omega = 50.0f * MATH_2PI;//    PLL.omega = PLL.omega_nominal;
+
+            PLL.state++;
+            break;
+        }
+
+
+        case PLL_first:
+        {
+            PLL.state++;
+            PLL.PI.integrator = PLL.omega_nominal;
+            PLL.w_filter2 = PLL.omega_nominal;
+            PLL.w_filter1 = PLL.omega_nominal;
+            break;
+        }
+        case PLL_check:
+        {
+            static float synch_ok_counter;
+            static float synch_counter;
+            static float counter_avg;
+
+            static float omega_avg_calka;
+            static float omega_avg_last;
+            static float omega_max_run;
+            static float omega_min_run;
+
+            if (PLL.state_last != PLL.state)
+            {
+                PLL.state_last = PLL.state;
+
+                counter_avg = 0;
+                synch_counter = 0;
+                synch_ok_counter = 0;
+
+                omega_avg_calka = 0;
+                omega_avg_last = PLL.w_filter2;
+            }
+
+            omega_avg_calka += PLL.w_filter2;
+            omega_max_run = fmaxf(omega_max_run, PLL.w_filter2);
+            omega_min_run = fmaxf(omega_min_run, PLL.w_filter2);
+
+            counter_avg++;
+            Uint16 counter_val = 1.0f * 0.02f / PLL.Ts;
+            if (counter_avg >= counter_val)
+            {
+                float omega_avg = omega_avg_calka / (float)counter_val;
+
+                if ((fabsf(omega_avg - omega_avg_last) <= 0.2f) &&
+                    (fabsf(omega_avg - omega_max_run) <= 0.5f) &&
+                    (fabsf(omega_avg - omega_min_run) <= 0.5f))
+                {
+                    synch_ok_counter++;
+                }
+                else synch_ok_counter = 0;
+
+                omega_avg_last = omega_avg;
+                omega_avg_calka = 0;
+                omega_max_run = PLL.w_filter2;
+                omega_min_run = PLL.w_filter2;
+
+                counter_avg = 0;
+                synch_counter++;
+            }
+            //if (synch_counter == 40) alarm.bit.PLL_ERR = 1;
+            if (synch_ok_counter >= 10)
+            {
+                PLL.RDY = 1;
+                PLL.state++;
+            }
+
+        }
+        case PLL_active:
+        {
+            PLL.state_last = PLL.state;
+
+
+            SOGI_calc(PLL.SOGI, Meas.U_grid, PLL.omega * PLL.Ts);
+
+            PLL.Umod_pos = sqrtf(PLL.SOGI.x * PLL.SOGI.x + PLL.SOGI.qx * PLL.SOGI.qx) * 0.5f;
+            register float error_PLL = (-sinf(PLL.theta) * PLL.SOGI.x + cosf(PLL.theta) * PLL.SOGI.qx) / fmaxf(PLL.Umod_pos, 1.0f);
+            PI_antiwindup_fast(&PLL.PI, error_PLL);
+
+            PLL.omega = PLL.PI.out;
+            PLL.theta += PLL.omega * PLL.Ts;
+            PLL.theta -= (float)((int32)(PLL.theta / MATH_PI)) * MATH_2PI;
+
+            PLL.w_filter1 += PLL.w_filter_coeff * (PLL.PI.out - PLL.w_filter1);
+            PLL.w_filter2 += PLL.w_filter_coeff * (PLL.w_filter1 - PLL.w_filter2);
+            break;
+        }
+        default:
+        {
+            //alarm.bit.PLL_ERR = 1;
+            break;
+        }
+        }
+
+    }
+
+
+
+
+
+

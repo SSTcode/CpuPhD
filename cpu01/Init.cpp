@@ -16,6 +16,58 @@
 
 class Init_class Init;
 
+
+void Init_class::Variables()
+{
+
+    float Ts = 20e-6;
+
+    Meas_alarm_H.temperature = 65.0f;
+    Meas_alarm_L.temperature = -100.0f;
+    Meas_alarm_H.U_dc = 120.0f;
+    Meas_alarm_L.U_dc = -5.0f;
+    Meas_alarm_H.I_conv = 2.0f;
+    Meas_alarm_L.I_conv = -2.0f;
+    Meas_alarm_H.I_inv = 2.0f;
+    Meas_alarm_L.I_inv = -2.0f;
+    Meas_alarm_H.I_grid = 2.0f;
+    Meas_alarm_L.I_grid = -2.0f;
+
+    CIC2_calibration.decimation_ratio = 5.0f;
+    CIC2_calibration.decimation_counter = 4.0f;
+    CIC2_calibration.OSR = 125;
+    CIC2_calibration.div_OSR = 1.0f / CIC2_calibration.OSR;
+    CIC2_calibration.range_modifier = 2500.0f;
+    CIC2_calibration.div_range_modifier = 1.0f / CIC2_calibration.range_modifier;
+    CIC2_calibration_input.ptr = &Meas.U_dc_0;
+
+    //for (i = 0; i < SINCOS_HARMONICS; i++)
+    //{
+    //    sincos_table[i].cosine = cosf(PLL.w_filter * PLL.Ts * (float)(i + 1));
+    //    sincos_table[i].sine = sinf(PLL.w_filter * PLL.Ts * (float)(i + 1));
+    //    float compensation = 2.0f;
+    //    sincos_table_comp[i].cosine = cosf(compensation * PLL.w_filter * PLL.Ts * (float)(i + 1));
+    //    sincos_table_comp[i].sine = sinf(compensation * PLL.w_filter * PLL.Ts * (float)(i + 1));
+    //}
+
+   // INV.enable =0;
+    INV.Ts = Ts;
+    INV.L_conv = 5e-3;
+    INV.R_conv = 100e-3;
+    register float I_arm2_filter_T = 2.0f * sqrtf(MATH_SQRT2 - 1.0f) / (MATH_2PI * 30.0f); //30Hz cutoff, Time constant of low-pass
+    INV.I_arm2_filter_coeff = INV.Ts * 2.0f / I_arm2_filter_T;
+
+    register float alfa_arm = 2.0f;
+    INV.PR_I_arm.w =  50.0f * MATH_2PI;
+    INV.PR_I_arm.Ki = INV.L_conv * INV.PR_I_arm.w * INV.PR_I_arm.w * (alfa_arm * alfa_arm - 1.0f);
+    INV.PR_I_arm.Kp = INV.L_conv * INV.PR_I_arm.w * (alfa_arm * alfa_arm / sqrtf(alfa_arm));// -Comp.Rgrid;
+    INV.PR_I_arm.Ts = INV.Ts;
+
+
+
+}
+
+
 void Init_class::IPCBootCPU2_flash()
 {
     if(( (IpcRegs.IPCBOOTSTS & 0x0000000F) == C2_BOOTROM_BOOTSTS_SYSTEM_READY)
@@ -413,32 +465,7 @@ void Init_class::PWMs()
     GPIO_Setup(PWM8B);
 }
 
-void Init_class::Variables()
-{
 
-    INV.counter = 0.0f;
-
-
-    Meas_alarm_H.temperature = 65.0f;
-    Meas_alarm_L.temperature = -100.0f;
-
-    Meas_alarm_H.U_dc = 690.0f;
-    Meas_alarm_L.U_dc = -500.0f;
-
-    Meas_alarm_H.I_conv = 160.0f;
-    Meas_alarm_L.I_conv = -160.0f;
-
-    Meas_alarm_H.I_grid = 160.0f;
-    Meas_alarm_L.I_grid = -160.0f;
-
-    CIC2_calibration.decimation_ratio = 5.0f;
-    CIC2_calibration.decimation_counter = 4.0f;
-    CIC2_calibration.OSR = 125;
-    CIC2_calibration.div_OSR = 1.0f / CIC2_calibration.OSR;
-    CIC2_calibration.range_modifier = 2500.0f;
-    CIC2_calibration.div_range_modifier = 1.0f / CIC2_calibration.range_modifier;
-    CIC2_calibration_input.ptr = &Meas.U_dc_0;
-}
 
 const struct GPIO_struct GPIOreg[169] =
 {
