@@ -51,11 +51,15 @@ void Init_class::Variables()
     //}
 
    // INV.enable =0;
+    INV.PR_I_arm.x0 =
+    INV.PR_I_arm.x1 = 0.0f;
+    INV.I_arm_ref = 0.1f;
     INV.Ts = Ts;
     INV.L_conv = 5e-3;
     INV.R_conv = 100e-3;
-    register float I_arm2_filter_T = 2.0f * sqrtf(MATH_SQRT2 - 1.0f) / (MATH_2PI * 30.0f); //30Hz cutoff, Time constant of low-pass
-    INV.I_arm2_filter_coeff = INV.Ts * 2.0f / I_arm2_filter_T;
+
+    //register float I_arm2_filter_T = 2.0f * sqrtf(MATH_SQRT2 - 1.0f) / (MATH_2PI * 30.0f); //30Hz cutoff, Time constant of low-pass
+    //INV.I_arm2_filter_coeff = INV.Ts * 2.0f / I_arm2_filter_T;
 
     register float alfa_arm = 2.0f;
     INV.PR_I_arm.w =  50.0f * MATH_2PI;

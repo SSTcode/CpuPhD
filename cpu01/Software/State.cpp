@@ -199,7 +199,9 @@ void SMachine_Main()
         {
             Machine.state_last = Machine.state;
         }
-
+        INV.PR_I_arm.y0 =
+        INV.PR_I_arm.x0 =
+        INV.PR_I_arm.x1 = 0.0f;
         //Machine.state = Machine_start;
         break;
     }
@@ -222,7 +224,7 @@ void SMachine_Main()
             Machine.state = Machine_operational;
         }
         if(!1) Machine.state = Machine_idle;
-        if(alarm.all[0] | alarm.all[1]) Machine.state = Machine_cleanup;//alar is it present
+        if(alarm.all[0] | alarm.all[1]) Machine.state = Machine_cleanup;//alarm is it present
         break;
     }
 
@@ -256,7 +258,7 @@ void SMachine_Main()
         Machine.state = Machine_init;
         break;
     }
-//your microphone . you are toking
+
     }
 }
 
