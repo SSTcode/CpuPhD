@@ -53,6 +53,13 @@ void Init_class::Variables()
    // INV.enable =0;
     INV.PR_I_arm.x0 =
     INV.PR_I_arm.x1 = 0.0f;
+    INV.PR_I_arm2.x0 =
+    INV.PR_I_arm2.x1 = 0.0f;
+    INV.PR_I_arm_cross.x0 =
+    INV.PR_I_arm_cross.x1 = 0.0f;
+    INV.PR_I_arm2_cross.x0 =
+    INV.PR_I_arm2_cross.x1 = 0.0f;
+
     INV.I_arm_ref = 0.1f;
     INV.Ts = Ts;
     INV.L_conv = 5e-3;
@@ -67,7 +74,20 @@ void Init_class::Variables()
     INV.PR_I_arm.Kp = INV.L_conv * INV.PR_I_arm.w * (alfa_arm * alfa_arm / sqrtf(alfa_arm));// -Comp.Rgrid;
     INV.PR_I_arm.Ts = INV.Ts;
 
+    INV.PR_I_arm2.w =INV.PR_I_arm.w ;
+    INV.PR_I_arm2.Ki =INV.PR_I_arm.Ki ;
+    INV.PR_I_arm2.Kp =INV.PR_I_arm.Kp ;
+    INV.PR_I_arm2.Ts =INV.PR_I_arm.Ts ;
 
+    INV.PR_I_arm_cross.w =INV.PR_I_arm.w ;
+    INV.PR_I_arm_cross.Ki =INV.PR_I_arm.Ki ;
+    INV.PR_I_arm_cross.Kp =INV.PR_I_arm.Kp ;
+    INV.PR_I_arm_cross.Ts =INV.PR_I_arm.Ts ;
+
+    INV.PR_I_arm2_cross.w =INV.PR_I_arm.w ;
+    INV.PR_I_arm2_cross.Ki =INV.PR_I_arm.Ki ;
+    INV.PR_I_arm2_cross.Kp =INV.PR_I_arm.Kp ;
+    INV.PR_I_arm2_cross.Ts =INV.PR_I_arm.Ts ;
 
 }
 

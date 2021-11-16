@@ -91,15 +91,15 @@ interrupt void HWI_func()
             Scope.acquire_before_trigger = 1000;
 
             Scope.data_in[0] = &INV.duty[0];
-            Scope.data_in[1] = &INV.duty[1];
-            Scope.data_in[2] = &Meas.I_conv_0;
-            Scope.data_in[3] = &Meas.I_grid;
-            Scope.data_in[4] = &Meas.I_inv_0;
-            Scope.data_in[5] = &Meas.I_conv_3;
-            Scope.data_in[6] = &Meas.U_dc_0;
+            Scope.data_in[1] = &INV.duty[2];
+            Scope.data_in[2] = &Meas.I_inv_0;
+            Scope.data_in[3] = &Meas.I_inv_1;
+            Scope.data_in[4] = &Meas.I_grid;
+            Scope.data_in[5] = &INV.I_cross_0;
+            Scope.data_in[6] = &INV.I_cross_1;
             Scope.data_in[7] = &Meas.U_grid;
-            Scope.data_in[8] = &Meas.U_dc_2;
-            Scope.data_in[9] = &Meas.U_dc_3;
+            Scope.data_in[8] = &Meas.U_dc_0;
+            Scope.data_in[9] = &Meas.U_dc_1;
             Scope.acquire_counter = -1;
         }
 

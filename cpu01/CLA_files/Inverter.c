@@ -22,8 +22,11 @@ void Inverter_calc()
 
        Meas_alarm_L.U_dc = -5.0f;
        GPIO_CLEAR(PWM_H1_ON_CPU);
-       GPIO_SET(RELAY_H1_GRID_CPU);
-       GPIO_CLEAR(RELAY_H1_DC_CPU);
+       GPIO_CLEAR(PWM_H2_ON_CPU);
+       GPIO_SET(RELAY_H1_DC_CPU);//R conect DC. LED OFF
+       GPIO_SET(RELAY_H2_DC_CPU);
+       GPIO_SET(RELAY_H1_GRID_CPU);// phase open. LED OFF
+       GPIO_SET(RELAY_H2_GRID_CPU);
    }
    else
    {
@@ -37,8 +40,10 @@ void Inverter_calc()
            {
                INV.state_last = INV.state;
                counter = 0.0f;
-               GPIO_CLEAR(RELAY_H1_GRID_CPU);
-               GPIO_CLEAR(RELAY_H1_DC_CPU);
+               GPIO_CLEAR(RELAY_H1_DC_CPU);//R conect phase. LED ON
+               GPIO_CLEAR(RELAY_H2_DC_CPU);
+               GPIO_CLEAR(RELAY_H1_GRID_CPU);// phase close. LED ON
+               GPIO_CLEAR(RELAY_H2_GRID_CPU);
                //Meas_alarm_L.U_dc = 5.0f;
            }
            counter += INV.Ts;
@@ -54,9 +59,12 @@ void Inverter_calc()
            {
                INV.state_last = INV.state;
                //resonant init
-               INV.PR_I_arm.x0 =
-               INV.PR_I_arm.x1 = 0.0f;
+              // INV.PR_I_arm.x0 =
+               //INV.PR_I_arm.x1 =
+               //INV.PR_I_arm2.x0 =
+               //INV.PR_I_arm2.x1 = 0.0f;
                GPIO_SET(PWM_H1_ON_CPU);
+               GPIO_SET(PWM_H2_ON_CPU);
                INV.RDY = 1.0f;
            }
 
@@ -66,13 +74,26 @@ void Inverter_calc()
            register float I_arm_ref = INV.I_arm_ref * cosf(INV.theta);// *(Rect.PI_U_dc.out * Rect.U_dc_filter2) / Rect.U_grid;
            //register float duty = INV.I_arm_ref * cosf(INV.theta);
 
+           INV.I_cross_0= 0.5f*Meas.I_inv_0-Meas.I_inv_1;
+           INV.I_cross_1= -Meas.I_inv_0+0.5f*Meas.I_inv_1;
+
+           register float input_error_cross = -0.0f + INV.I_cross_0;
+           register float input_error2_cross = -0.0f + INV.I_cross_1;
+
            register float input_error = -I_arm_ref + Meas.I_inv_0;
+           register float input_error2 = -I_arm_ref + Meas.I_inv_1;
            PR_calc(&INV.PR_I_arm, input_error);
+           PR_calc(&INV.PR_I_arm2, input_error2);
+          // PR_calc(&INV.PR_I_arm_cross, input_error_cross);
+           //PR_calc(&INV.PR_I_arm2_cross, input_error2_cross);
 
-              register float duty= INV.PR_I_arm.out / Meas.U_dc_0;
+           INV.duty[0]= INV.PR_I_arm.out / Meas.U_dc_0 + 0.5f ;// + INV.PR_I_arm_cross.out;
+           INV.duty[2]= INV.PR_I_arm2.out / Meas.U_dc_1 + 0.5f ;//+ INV.PR_I_arm_cross.out;
 
-              INV.duty[0]=duty+0.5;
+
               INV.duty[1]=1-INV.duty[0];
+
+              INV.duty[3]=1-INV.duty[2];
 
            break;
        }

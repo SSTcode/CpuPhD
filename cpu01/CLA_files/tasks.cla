@@ -45,8 +45,8 @@ interrupt void Cla1Task1 ( void )
 
     ePWM_leg(&EPwm1Regs, INV.duty[0]);
     ePWM_leg(&EPwm2Regs, INV.duty[1]);
-    ePWM_leg(&EPwm3Regs, duty[2]);
-    ePWM_leg(&EPwm4Regs, duty[3]);
+    ePWM_leg(&EPwm3Regs, INV.duty[2]);
+    ePWM_leg(&EPwm4Regs, INV.duty[3]);
     ePWM_leg(&EPwm5Regs, duty[4]);
     ePWM_leg(&EPwm6Regs, duty[5]);
     ePWM_leg(&EPwm7Regs, duty[6]);

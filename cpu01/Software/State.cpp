@@ -201,7 +201,10 @@ void SMachine_Main()
         }
         INV.PR_I_arm.y0 =
         INV.PR_I_arm.x0 =
-        INV.PR_I_arm.x1 = 0.0f;
+        INV.PR_I_arm.x1 =
+        INV.PR_I_arm2.y0 =
+        INV.PR_I_arm2.x0 =
+        INV.PR_I_arm2.x1 = 0.0f;
         //Machine.state = Machine_start;
         break;
     }
