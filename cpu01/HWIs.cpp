@@ -112,7 +112,9 @@ interrupt void HWI_func()
 //            Scope_trigger(*(float *)trigger_pointer, (float *)&trigger_last, trigger_val, 1);
     //        Scope_trigger((float)Comp.state, 1.5f, 1);
     //        Scope_trigger(*trigger_pointer, -trigger_val, 1);
-           //if(INV.I_arm2_ref) Scope_trigger_unc();
+            static volatile float ref_last = 0.0f;
+           if(ref_last != INV.I_arm_dc_ref) Scope_trigger_unc();
+           ref_last = INV.I_arm_dc_ref;
             //if(INV.state == INV_active) Scope_trigger_unc();
             //if(alarm.all[0] | alarm.all[1]) Scope_trigger_unc();
             Scope_task();

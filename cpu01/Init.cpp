@@ -49,8 +49,31 @@ void Init_class::Variables()
     //    sincos_table_comp[i].cosine = cosf(compensation * PLL.w_filter * PLL.Ts * (float)(i + 1));
     //    sincos_table_comp[i].sine = sinf(compensation * PLL.w_filter * PLL.Ts * (float)(i + 1));
     //}
+    ////////////////////////////////////////////////////////////////
 
-   // INV.enable =0;
+    float OSR = (Uint16)(0.02f / INV.Ts + 0.5f);
+    CIC1_filter_init(&INV.CIC1_I_arm, 64.0f, OSR, 1.0f);
+
+    ////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
+
+    //register float I_arm2_filter_T = 2.0f * sqrtf(MATH_SQRT2 - 1.0f) / (MATH_2PI * 30.0f); //30Hz cutoff, Time constant of low-pass
+    //INV.I_arm2_filter_coeff = INV.Ts * 2.0f / I_arm2_filter_T;
+
+    register float alfa_i_dc = 6.0f;
+    register float STC_i_dc = INV.Ts * 1.5f;// +I_arm2_filter_T;
+    float kp_i_dc = INV.L_conv / (alfa_i_dc * STC_i_dc);
+    float ti_i_dc = alfa_i_dc * alfa_i_dc * STC_i_dc;
+
+    INV.PI_I_arm_dc.Ts_Ti = INV.Ts / ti_i_dc;
+    INV.PI_I_arm_dc.Kp = kp_i_dc;
+    INV.PI_I_arm_dc.lim_H = 5.0f;
+    INV.PI_I_arm_dc.lim_L = -5.0f;
+    INV.PI_I_arm_dc.integrator = 0.0f;
+    INV.PI_I_arm_dc.proportional = 0.0f;
+    INV.PI_I_arm_dc.out = 0.0f;
+
+    INV.enable =0;
     INV.PR_I_arm.x0 =
     INV.PR_I_arm.x1 = 0.0f;
     INV.PR_I_arm2.x0 =
@@ -60,7 +83,8 @@ void Init_class::Variables()
     INV.PR_I_arm2_cross.x0 =
     INV.PR_I_arm2_cross.x1 = 0.0f;
 
-    INV.I_arm_ref = 0.1f;
+    INV.I_arm_ref = 0.2f;
+    INV.I_arm_dc_ref=0.0f;
     INV.Ts = Ts;
     INV.L_conv = 5e-3;
     INV.R_conv = 100e-3;
@@ -89,7 +113,94 @@ void Init_class::Variables()
     INV.PR_I_arm2_cross.Kp =INV.PR_I_arm.Kp ;
     INV.PR_I_arm2_cross.Ts =INV.PR_I_arm.Ts ;
 
+    ///////////////////////////////////////////////////////////////////////////////////////////
+
+    INV.I_lim = INV.I_lim_nominal;
+
+    register float p_pr_i = INV.L_conv / (3.0f * INV.Ts);
+    //INV.Kp_I = p_pr_i;
+    //register float r_pr_i = INV.L_conv * MATH_PI / INV.Ts;
+    register float r_pr_i = INV.PR_I_arm.Ki;
+   // r_pr_i /= MATH_2PI * 50.0f;
+
+    INV.Kp_I = INV.PR_I_arm.Kp;
+    r_pr_i = INV.PR_I_arm.Ki;
+
+
+    Uint16 i;
+    for (i = 0; i < sizeof(INV.Resonant_I_a_odd) / sizeof(INV.Resonant_I_a_odd[0]); i++)
+    {
+        INV.Resonant_I_a_odd[i].gain =
+        INV.Resonant_I_b_odd[i].gain = 0.1f * r_pr_i;
+
+        INV.Resonant_I_a_odd[i].trigonometric.ptr =
+        INV.Resonant_I_b_odd[i].trigonometric.ptr = &sincos_table[2 * i];
+
+        INV.Resonant_I_a_odd[i].trigonometric_comp.ptr =
+        INV.Resonant_I_b_odd[i].trigonometric_comp.ptr = &sincos_table_comp[2 * i];
+    }
+
+    for (i = 0; i < sizeof(INV.Resonant_I_a_even) / sizeof(INV.Resonant_I_a_even[0]); i++)
+    {
+        INV.Resonant_I_a_even[i].gain =
+        INV.Resonant_I_b_even[i].gain = 0.1f * r_pr_i;
+
+        INV.Resonant_I_a_even[i].trigonometric.ptr =
+        INV.Resonant_I_b_even[i].trigonometric.ptr = &sincos_table[2 * i + 1];
+
+        INV.Resonant_I_a_even[i].trigonometric_comp.ptr =
+        INV.Resonant_I_b_even[i].trigonometric_comp.ptr = &sincos_table_comp[2 * i + 1];
+    }
+
+    INV.Resonant_I_a_odd[0].gain =
+    INV.Resonant_I_b_odd[0].gain = 1.0f * r_pr_i;
+
+    INV.compensation = 2.5f;
+
+    INV.resonant_odd_number = 1;
+    //INV.resonant_even_number = 2;
+    ///////////////////////////////////////////////////////////////////
+
+    INV.Resonant_U_grid.trigonometric.ptr = &sincos_table[0];
+    INV.Resonant_U_grid.trigonometric_comp.ptr = &sincos_table[0];
+    INV.Resonant_U_grid.gain = 2.0f * (1.0f / 0.02f) / (MATH_2PI * 50.0f);
+
+    INV.Resonant_I_grid.trigonometric.ptr = &sincos_table[0];
+    INV.Resonant_I_grid.trigonometric_comp.ptr = &sincos_table[0];
+    INV.Resonant_I_grid.gain = 2.0f * (1.0f / 0.001f) / (MATH_2PI * 50.0f);
+
+    ///////////////////////////////////////////////////////////////////
+
+    float w_nominal = 50.0f * MATH_2PI;
+    for (i = 0; i < SINCOS_HARMONICS; i++)
+    {
+        sincos_table[i].cosine = cosf(w_nominal * INV.Ts * (float)(i + 1));
+        sincos_table[i].sine = sinf(w_nominal * INV.Ts * (float)(i + 1));
+        float compensation = 0.0f;
+        sincos_table_comp[i].cosine = cosf(compensation * w_nominal * INV.Ts * (float)(i + 1));
+        sincos_table_comp[i].sine = sinf(compensation * w_nominal * INV.Ts * (float)(i + 1));
+    }
+
+    ///////////////////////////////////////////////////////////////////
+
+
 }
+
+void Init_class::CIC1_filter_init(struct CIC1_struct *CIC, float max_value, float OSR, float decimation_ratio)
+{
+    CIC->decimation_ratio = decimation_ratio;
+    CIC->OSR = OSR;
+    CIC->div_OSR = 1.0f / OSR;
+    CIC->range_modifier = (float)(1UL<<31) / OSR / max_value;
+    CIC->div_range_modifier = 1.0f / CIC->range_modifier;
+}
+
+void Init_class::CIC1_adaptive_filter_init(struct CIC1_adaptive_struct *CIC, float max_value, float OSR)
+{
+    CIC->range_modifier = (float)(1UL<<31) / OSR / max_value;
+    CIC->div_range_modifier = 1.0f / CIC->range_modifier;
+}
+
 
 
 void Init_class::IPCBootCPU2_flash()

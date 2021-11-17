@@ -231,6 +231,9 @@ extern struct Measurements_gain_offset_struct Meas_offset;
 extern struct Measurements_alarm_struct Meas_alarm_H;
 extern struct Measurements_alarm_struct Meas_alarm_L;
 
+extern struct trigonometric_struct sincos_table[SINCOS_HARMONICS];
+extern struct trigonometric_struct sincos_table_comp[SINCOS_HARMONICS];
+
 extern volatile union EMIF_union EMIF_mem;
 extern struct EMIF_CLA_struct EMIF_CLA;
 

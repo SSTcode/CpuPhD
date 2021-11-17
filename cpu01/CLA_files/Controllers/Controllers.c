@@ -200,9 +200,9 @@ void PI_antiwindup_fast_ff(struct PI_struct *PI, float error, float feedforward)
 void PI_antiwindup(struct PI_struct *PI, float error)
 {
     float integrator_last = PI->integrator;
-    PI->proportional = PI->Kp * error;
-    PI->integrator += PI->proportional * PI->Ts_Ti;
-    PI->out = PI->integrator + PI->proportional;
+    //PI->proportional = PI->Kp * error;
+    PI->integrator += error * PI->Ts_Ti;
+    PI->out = PI->integrator;// +PI->proportional;
     if (PI->out > PI->lim_H)
     {
         PI->out = PI->lim_H;

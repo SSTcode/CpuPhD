@@ -59,10 +59,12 @@ void Inverter_calc()
            {
                INV.state_last = INV.state;
                //resonant init
-              // INV.PR_I_arm.x0 =
-               //INV.PR_I_arm.x1 =
-               //INV.PR_I_arm2.x0 =
-               //INV.PR_I_arm2.x1 = 0.0f;
+               INV.PR_I_arm.x0 =
+               INV.PR_I_arm.x1 = 0.0f;
+
+               INV.Resonant_I_a_odd[0].x0 = INV.Resonant_U_grid.y0;
+               INV.Resonant_I_a_odd[0].x1 = INV.Resonant_U_grid.y1;
+
                GPIO_SET(PWM_H1_ON_CPU);
                GPIO_SET(PWM_H2_ON_CPU);
                INV.RDY = 1.0f;
@@ -71,24 +73,36 @@ void Inverter_calc()
            INV.theta += 50.0f * MATH_2PI * INV.Ts;
            INV.theta -= (float)((int32)(INV.theta * MATH_1_PI))*MATH_2PI;
 
-           register float I_arm_ref = INV.I_arm_ref * cosf(INV.theta);// *(Rect.PI_U_dc.out * Rect.U_dc_filter2) / Rect.U_grid;
+           register float I_arm_ref = INV.I_arm_ref * cosf(INV.theta)+ INV.I_arm_dc_ref;// *(Rect.PI_U_dc.out * Rect.U_dc_filter2) / Rect.U_grid;
            //register float duty = INV.I_arm_ref * cosf(INV.theta);
 
-           INV.I_cross_0= 0.5f*Meas.I_inv_0-Meas.I_inv_1;
-           INV.I_cross_1= -Meas.I_inv_0+0.5f*Meas.I_inv_1;
+           INV.I_cross_0= 0.5f*Meas.I_inv_0-0.5f*Meas.I_inv_1;
+           INV.I_cross_1= -0.5f*Meas.I_inv_0+0.5f*Meas.I_inv_1;
 
            register float input_error_cross = -0.0f + INV.I_cross_0;
            register float input_error2_cross = -0.0f + INV.I_cross_1;
 
-           register float input_error = -I_arm_ref + Meas.I_inv_0;
-           register float input_error2 = -I_arm_ref + Meas.I_inv_1;
-           PR_calc(&INV.PR_I_arm, input_error);
-           PR_calc(&INV.PR_I_arm2, input_error2);
-          // PR_calc(&INV.PR_I_arm_cross, input_error_cross);
-           //PR_calc(&INV.PR_I_arm2_cross, input_error2_cross);
+           register float input_error = (-I_arm_ref + Meas.I_inv_0);
+           //PI_antiwindup(&INV.PI_I_arm_dc, input_error);
+           float U_ref = INV.Kp_I * input_error;
+           U_ref += Resonant_mult_calc_CLAasm(INV.Resonant_I_a_odd, input_error * INV.zero_error, INV.resonant_odd_number);
 
-           INV.duty[0]= INV.PR_I_arm.out / Meas.U_dc_0 + 0.5f ;// + INV.PR_I_arm_cross.out;
-           INV.duty[2]= INV.PR_I_arm2.out / Meas.U_dc_1 + 0.5f ;//+ INV.PR_I_arm_cross.out;
+           register float input_error2 = (-I_arm_ref + Meas.I_inv_1);
+           //PI_antiwindup(&INV.PI_I_arm2_dc, input_error2);
+           float U_ref2 = INV.Kp_I * input_error2;
+           U_ref2 += Resonant_mult_calc_CLAasm(INV.Resonant_I_a_odd, input_error2 * INV.zero_error, INV.resonant_odd_number);
+
+           //PR_calc(&INV.PR_I_arm, input_error);
+           //PR_calc(&INV.PR_I_arm2, input_error2);
+           //PR_calc(&INV.PR_I_arm_cross, input_error_cross);
+          //PR_calc(&INV.PR_I_arm2_cross, input_error2_cross);
+
+
+          // INV.duty[0]= (INV.PR_I_arm.out ) / Meas.U_dc_0 + 0.5f;
+           //INV.duty[2]= (INV.PR_I_arm2.out) / Meas.U_dc_1 + 0.5f ;//+ INV.PR_I_arm_cross.out;
+
+           INV.duty[0]= (U_ref ) / Meas.U_dc_0 + 0.5f;
+           INV.duty[2]= (U_ref2) / Meas.U_dc_1 + 0.5f ;//+ INV.PR_I_arm_cross.out;
 
 
               INV.duty[1]=1-INV.duty[0];

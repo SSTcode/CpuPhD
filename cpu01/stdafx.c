@@ -27,6 +27,10 @@ struct Measurements_gain_offset_struct Meas_offset;
 struct Measurements_alarm_struct Meas_alarm_H;
 struct Measurements_alarm_struct Meas_alarm_L;
 
+struct trigonometric_struct sincos_table[SINCOS_HARMONICS];
+struct trigonometric_struct sincos_table_comp[SINCOS_HARMONICS];
+
+
 struct EMIF_CLA_struct EMIF_CLA;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

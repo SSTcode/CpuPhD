@@ -71,6 +71,23 @@ struct GPIO_struct
 
 extern const struct GPIO_struct GPIOreg[169];
 
+
+
+#define Resonant_mult3_calc_CLAasm Resonant_mult3_calc
+#define Resonant_mult3_calc2_CLAasm Resonant_mult3_calc2
+#define Resonant_filter_calc_CLAasm Resonant_filter_calc
+#define Filter1_calc_CLAasm Filter1_calc
+#define PI_antiwindup_fast_ff_CLAasm PI_antiwindup_fast_ff
+#define PI_antiwindup_fast_CLAasm PI_antiwindup_fast
+#define PI_antiwindup_CLAasm PI_antiwindup
+#define Resonant_mult_calc_CLAasm Resonant_mult_calc
+#define CIC2_filter_CLAasm CIC2_filter
+#define CIC1_filter_CLAasm CIC1_filter
+#define Resonant_calc_CLAasm Resonant_calc
+#define CIC1_adaptive_filter_CLAasm CIC1_adaptive_filter
+#define CIC1_adaptive_global_CLAasm CIC1_adaptive_global_calc
+#define Kalman_calc_CPUasm Kalman_calc
+
 #define GPIO_Setup(i)                                  \
 GPIO_WritePin(i, GPIOreg[i].defval);                      \
 GPIO_SetupPinMux(i, GPIOreg[i].cpucla, GPIOreg[i].mux);      \
