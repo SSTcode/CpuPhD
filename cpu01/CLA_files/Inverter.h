@@ -25,6 +25,8 @@ struct INVERTER_struct
     struct PR_struct PR_I_arm2_cross;
     struct PI_struct PI_I_arm_dc;
     struct PI_struct PI_I_arm2_dc;
+    struct PI_struct PI_I_arm_dc_cross;
+    struct PI_struct PI_I_arm2_dc_cross;
     float I_arm_ref;
     float I_arm_dc_ref;
 
@@ -35,6 +37,7 @@ struct INVERTER_struct
     float I_lim_nominal;
 
     float RDY;
+    float RDY_cross;
     float enable;
     float theta;
     float zero_error;

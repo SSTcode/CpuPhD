@@ -73,6 +73,33 @@ void Init_class::Variables()
     INV.PI_I_arm_dc.proportional = 0.0f;
     INV.PI_I_arm_dc.out = 0.0f;
 
+
+    INV.PI_I_arm2_dc.Ts_Ti = INV.PI_I_arm_dc.Ts_Ti;
+    INV.PI_I_arm2_dc.Kp = INV.PI_I_arm_dc.Kp;
+    INV.PI_I_arm2_dc.lim_H = INV.PI_I_arm_dc.lim_H;
+    INV.PI_I_arm2_dc.lim_L = INV.PI_I_arm_dc.lim_L;
+    INV.PI_I_arm2_dc.integrator = INV.PI_I_arm_dc.integrator;
+    INV.PI_I_arm2_dc.proportional =  INV.PI_I_arm_dc.proportional;
+    INV.PI_I_arm2_dc.out = INV.PI_I_arm_dc.out;
+
+    INV.PI_I_arm_dc_cross.Ts_Ti = INV.PI_I_arm_dc.Ts_Ti;
+    INV.PI_I_arm_dc_cross.Kp = INV.PI_I_arm_dc.Kp;
+    INV.PI_I_arm_dc_cross.lim_H = INV.PI_I_arm_dc.lim_H;
+    INV.PI_I_arm_dc_cross.lim_L = INV.PI_I_arm_dc.lim_L;
+    INV.PI_I_arm_dc_cross.integrator = INV.PI_I_arm_dc.integrator;
+    INV.PI_I_arm_dc_cross.proportional =  INV.PI_I_arm_dc.proportional;
+    INV.PI_I_arm_dc_cross.out = INV.PI_I_arm_dc.out;
+
+    INV.PI_I_arm2_dc_cross.Ts_Ti = INV.PI_I_arm_dc.Ts_Ti;
+    INV.PI_I_arm2_dc_cross.Kp = INV.PI_I_arm_dc.Kp;
+    INV.PI_I_arm2_dc_cross.lim_H = INV.PI_I_arm_dc.lim_H;
+    INV.PI_I_arm2_dc_cross.lim_L = INV.PI_I_arm_dc.lim_L;
+    INV.PI_I_arm2_dc_cross.integrator = INV.PI_I_arm_dc.integrator;
+    INV.PI_I_arm2_dc_cross.proportional =  INV.PI_I_arm_dc.proportional;
+    INV.PI_I_arm2_dc_cross.out = INV.PI_I_arm_dc.out;
+
+
+
     INV.enable =0;
     INV.PR_I_arm.x0 =
     INV.PR_I_arm.x1 = 0.0f;
@@ -118,13 +145,13 @@ void Init_class::Variables()
     INV.I_lim = INV.I_lim_nominal;
 
     register float p_pr_i = INV.L_conv / (3.0f * INV.Ts);
-    //INV.Kp_I = p_pr_i;
-    //register float r_pr_i = INV.L_conv * MATH_PI / INV.Ts;
-    register float r_pr_i = INV.PR_I_arm.Ki;
-   // r_pr_i /= MATH_2PI * 50.0f;
+    INV.Kp_I = p_pr_i;
+    register float r_pr_i = INV.L_conv * MATH_PI / INV.Ts;
+    //register float r_pr_i = INV.PR_I_arm.Ki;
+    r_pr_i /= MATH_2PI * 50.0f;
 
-    INV.Kp_I = INV.PR_I_arm.Kp;
-    r_pr_i = INV.PR_I_arm.Ki;
+    //INV.Kp_I = INV.PR_I_arm.Kp;
+    //r_pr_i = INV.PR_I_arm.Ki;
 
 
     Uint16 i;
