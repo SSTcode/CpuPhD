@@ -19,28 +19,26 @@ struct INVERTER_struct
     struct Resonant_struct Resonant_U_grid;
     struct Resonant_struct Resonant_I_grid;
 
-    struct PR_struct PR_I_arm;
+    struct PR_struct PR_I_arm0;
+    struct PR_struct PR_I_arm1;
     struct PR_struct PR_I_arm2;
-    struct PR_struct PR_I_arm_cross;
-    struct PR_struct PR_I_arm2_cross;
+    struct PR_struct PR_I_arm3;
     struct PI_struct PI_I_arm_dc;
     struct PI_struct PI_I_arm2_dc;
-    struct PI_struct PI_I_arm_dc_cross;
-    struct PI_struct PI_I_arm2_dc_cross;
     float I_arm_ref;
     float I_arm_dc_ref;
-
-    float I_cross_0;
-    float I_cross_1;
+    float I_arm2_ref;
+    float I_arm_filter;
+    float I_arm2_filter2;
+    float I_arm2_filter_coeff;
 
     float I_lim;
     float I_lim_nominal;
 
     float RDY;
-    float RDY_cross;
     float enable;
     float theta;
-    float zero_error;
+    float zero_error[4];
 
     float Ts;
     float L_conv;
@@ -54,14 +52,21 @@ struct INVERTER_struct
     float compensation;
     float resonant_odd_number;
     float resonant_even_number;
-    struct Resonant_struct Resonant_I_a_odd[25];
-    struct Resonant_struct Resonant_I_b_odd[25];
+    struct Resonant_struct Resonant_I_a_odd0[25];
+    struct Resonant_struct Resonant_I_a_odd1[25];
 
-    struct Resonant_struct Resonant_I_a_even[2];
-    struct Resonant_struct Resonant_I_b_even[2];
+    struct Resonant_struct Resonant_I_a_odd2[25];
+    struct Resonant_struct Resonant_I_a_odd3[25];
+
+    struct Resonant_struct Resonant_I_a_even0[2];
+    struct Resonant_struct Resonant_I_a_even1[2];
+
+    struct Resonant_struct Resonant_I_a_even2[2];
+    struct Resonant_struct Resonant_I_a_even3[2];
     CLA_FPTR duty_a;
     CLA_FPTR duty_b;
     float correction;
+
 
     //struct CIC_struct I_arm_CIC, U_dc_CIC;
 

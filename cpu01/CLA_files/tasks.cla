@@ -47,10 +47,10 @@ interrupt void Cla1Task1 ( void )
     ePWM_leg(&EPwm2Regs, INV.duty[1]);
     ePWM_leg(&EPwm3Regs, INV.duty[2]);
     ePWM_leg(&EPwm4Regs, INV.duty[3]);
-    ePWM_leg(&EPwm5Regs, duty[4]);
-    ePWM_leg(&EPwm6Regs, duty[5]);
-    ePWM_leg(&EPwm7Regs, duty[6]);
-    ePWM_leg(&EPwm8Regs, duty[7]);
+    ePWM_leg(&EPwm5Regs, INV.duty[4]);
+    ePWM_leg(&EPwm6Regs, INV.duty[5]);
+    ePWM_leg(&EPwm7Regs, INV.duty[6]);
+    ePWM_leg(&EPwm8Regs, INV.duty[7]);
 
 
     CIC2_filter_CLAasm(&CIC2_calibration, *CIC2_calibration_input.ptr);

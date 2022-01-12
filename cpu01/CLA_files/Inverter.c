@@ -20,13 +20,22 @@ void Inverter_calc()
        INV.state = INV_first;
        INV.state_last = INV_active;
 
-       Meas_alarm_L.U_dc = -5.0f;
+
        GPIO_CLEAR(PWM_H1_ON_CPU);
+       GPIO_SET(RELAY_H1_GRID_CPU);
+       GPIO_CLEAR(RELAY_H1_DC_CPU);
+
        GPIO_CLEAR(PWM_H2_ON_CPU);
-       GPIO_SET(RELAY_H1_DC_CPU);//R conect DC. LED OFF
-       GPIO_SET(RELAY_H2_DC_CPU);
-       GPIO_SET(RELAY_H1_GRID_CPU);// phase open. LED OFF
        GPIO_SET(RELAY_H2_GRID_CPU);
+       GPIO_CLEAR(RELAY_H2_DC_CPU);
+
+       GPIO_CLEAR(PWM_H3_ON_CPU);
+       GPIO_SET(RELAY_H3_GRID_CPU);
+       GPIO_CLEAR(RELAY_H3_DC_CPU);
+
+       GPIO_CLEAR(PWM_H4_ON_CPU);
+       GPIO_SET(RELAY_H4_GRID_CPU);
+       GPIO_CLEAR(RELAY_H4_DC_CPU);
    }
    else
    {
@@ -42,8 +51,12 @@ void Inverter_calc()
                counter = 0.0f;
                GPIO_CLEAR(RELAY_H1_DC_CPU);//R conect phase. LED ON
                GPIO_CLEAR(RELAY_H2_DC_CPU);
-               GPIO_CLEAR(RELAY_H1_GRID_CPU);// phase close. LED ON
-               GPIO_CLEAR(RELAY_H2_GRID_CPU);
+               GPIO_CLEAR(RELAY_H3_DC_CPU);
+               GPIO_CLEAR(RELAY_H4_DC_CPU);
+               GPIO_SET(RELAY_H1_GRID_CPU);
+               GPIO_SET(RELAY_H2_GRID_CPU);
+               GPIO_SET(RELAY_H3_GRID_CPU);
+               GPIO_SET(RELAY_H4_GRID_CPU);
                //Meas_alarm_L.U_dc = 5.0f;
 
            }
@@ -60,20 +73,37 @@ void Inverter_calc()
            {
                INV.state_last = INV.state;
                //resonant init
-               INV.PR_I_arm.x0 =
-               INV.PR_I_arm.x1 = 0.0f;
+               INV.PR_I_arm0.x0 =
+               INV.PR_I_arm0.x1 =
+               INV.PR_I_arm1.x0 =
+               INV.PR_I_arm1.x1 =
                INV.PR_I_arm2.x0 =
-               INV.PR_I_arm2.x1 = 0.0f;
-               INV.PR_I_arm_cross.x0 =
-               INV.PR_I_arm_cross.x1 = 0.0f;
-               INV.PR_I_arm2_cross.x0 =
-               INV.PR_I_arm2_cross.x1 = 0.0f;
+               INV.PR_I_arm2.x1 =
+               INV.PR_I_arm3.x0 =
+               INV.PR_I_arm3.x1 = 0.0f;
 
-               INV.Resonant_I_a_odd[0].x0 = INV.Resonant_U_grid.y0;
-               INV.Resonant_I_a_odd[0].x1 = INV.Resonant_U_grid.y1;
+               INV.Resonant_I_a_odd0[0].x0 = INV.Resonant_U_grid.y0;
+               INV.Resonant_I_a_odd0[0].x1 = INV.Resonant_U_grid.y1;
+
+               INV.Resonant_I_a_odd1[0].x0 = INV.Resonant_U_grid.y0;
+               INV.Resonant_I_a_odd1[0].x1 = INV.Resonant_U_grid.y1;
+
+               INV.Resonant_I_a_odd2[0].x0 = INV.Resonant_U_grid.y0;
+               INV.Resonant_I_a_odd2[0].x1 = INV.Resonant_U_grid.y1;
+
+               INV.Resonant_I_a_odd3[0].x0 = INV.Resonant_U_grid.y0;
+               INV.Resonant_I_a_odd3[0].x1 = INV.Resonant_U_grid.y1;
+
+               INV.state_last = INV.state;
 
                GPIO_SET(PWM_H1_ON_CPU);
+               GPIO_CLEAR(RELAY_H1_GRID_CPU);
                GPIO_SET(PWM_H2_ON_CPU);
+               GPIO_CLEAR(RELAY_H2_GRID_CPU);
+               GPIO_SET(PWM_H3_ON_CPU);
+               GPIO_CLEAR(RELAY_H3_GRID_CPU);
+               GPIO_SET(PWM_H4_ON_CPU);
+               GPIO_CLEAR(RELAY_H4_GRID_CPU);
                INV.RDY = 1.0f;
 
            }
@@ -81,43 +111,57 @@ void Inverter_calc()
            INV.theta += 50.0f * MATH_2PI * INV.Ts;
            INV.theta -= (float)((int32)(INV.theta * MATH_1_PI))*MATH_2PI;
 
-           register float I_arm_ref = INV.I_arm_ref * cosf(INV.theta)+ INV.I_arm_dc_ref;// *(Rect.PI_U_dc.out * Rect.U_dc_filter2) / Rect.U_grid;
-           //register float duty = INV.I_arm_ref * cosf(INV.theta);
+           register float I_arm_ref = INV.I_arm_ref  * cosf(INV.theta);// +INV.I_arm_dc_ref;// *(Rect.PI_U_dc.out * Rect.U_dc_filter2) / Rect.U_grid;
 
-           INV.I_cross_0= 0.5f*Meas.I_inv_0-0.5f*Meas.I_inv_1;
-           INV.I_cross_1= -0.5f*Meas.I_inv_0+0.5f*Meas.I_inv_1;
 
-           register float input_error_cross = -0.0f + INV.I_cross_0;
-           register float input_error2_cross = -0.0f + INV.I_cross_1;
+           INV.zero_error[3] =
+           INV.zero_error[2] =
+           INV.zero_error[1] =
+           INV.zero_error[0] = 1.0f;
 
-           register float input_error = (-I_arm_ref + Meas.I_inv_0);
-           PI_antiwindup(&INV.PI_I_arm_dc, input_error);
-           float U_ref = INV.Kp_I * input_error;
-           U_ref += Resonant_mult_calc_CLAasm(INV.Resonant_I_a_odd, input_error * INV.zero_error, INV.resonant_odd_number);
+           if(fabs(INV.duty[0] - 0.5f) > 0.5f) INV.zero_error[0] = 0.0f;
+           if(fabs(INV.duty[2] - 0.5f) > 0.5f) INV.zero_error[1] = 0.0f;
+           if(fabs(INV.duty[4] - 0.5f) > 0.5f) INV.zero_error[2] = 0.0f;
+           if(fabs(INV.duty[6] - 0.5f) > 0.5f) INV.zero_error[3] = 0.0f;
 
-           register float input_error2 = (-I_arm_ref + Meas.I_inv_1);
-           PI_antiwindup(&INV.PI_I_arm2_dc, input_error2);
+           register float input_error3 = (I_arm_ref - Meas.I_inv_3);
+           //PI_antiwindup(&INV.PI_I_arm_dc, input_error);
+           //PR_calc(&INV.PR_I_arm3, input_error3);
+           float U_ref3 = INV.Kp_I * input_error3;
+           U_ref3 += Resonant_mult_calc_CLAasm(INV.Resonant_I_a_odd3, input_error3 * INV.zero_error[3], INV.resonant_odd_number);
+
+
+           register float input_error2 = (I_arm_ref - Meas.I_inv_2);
+           //PI_antiwindup(&INV.PI_I_arm2_dc, input_error2);
+          // PR_calc(&INV.PR_I_arm2, input_error2);
            float U_ref2 = INV.Kp_I * input_error2;
-           U_ref2 += Resonant_mult_calc_CLAasm(INV.Resonant_I_a_odd, input_error2 * INV.zero_error, INV.resonant_odd_number);
+           U_ref2 += Resonant_mult_calc_CLAasm(INV.Resonant_I_a_odd2, input_error2 * INV.zero_error[2], INV.resonant_odd_number);
 
-           //PR_calc(&INV.PR_I_arm, input_error);
-           //PR_calc(&INV.PR_I_arm2, input_error2);
-           //PI_antiwindup(&INV.PI_I_arm_dc_cross, input_error_cross);
-           //PI_antiwindup(&INV.PI_I_arm2_dc_cross, input_error2_cross);
-           PR_calc(&INV.PR_I_arm_cross, input_error_cross);
-           PR_calc(&INV.PR_I_arm2_cross, input_error2_cross);
+           register float input_error1 = (I_arm_ref - Meas.I_inv_1);
+           //PI_antiwindup(&INV.PI_I_arm2_dc, input_error2);
+           //PR_calc(&INV.PR_I_arm1, input_error1);
+           float U_ref1 = INV.Kp_I * input_error1;
+           U_ref1 += Resonant_mult_calc_CLAasm(INV.Resonant_I_a_odd1, input_error1 * INV.zero_error[1], INV.resonant_odd_number);
+
+           register float input_error0 = (I_arm_ref - Meas.I_inv_0);
+           //PI_antiwindup(&INV.PI_I_arm2_dc, input_error2);
+           //PR_calc(&INV.PR_I_arm0, input_error0);
+           float U_ref0 = INV.Kp_I * input_error0;
+           U_ref0 += Resonant_mult_calc_CLAasm(INV.Resonant_I_a_odd0, input_error0 * INV.zero_error[0], INV.resonant_odd_number);
 
 
-          // INV.duty[0]= (INV.PR_I_arm.out ) / Meas.U_dc_0 + 0.5f;
-           //INV.duty[2]= (INV.PR_I_arm2.out) / Meas.U_dc_1 + 0.5f ;//+ INV.PR_I_arm_cross.out;
+           //register float duty = (U_ref + INV.PI_I_arm_dc.out) / Meas.U_dc_0 ;
 
-
-
-                  INV.duty[0]= (U_ref + INV.PI_I_arm_dc.out) / Meas.U_dc_0 + 0.5f  ;
-                  INV.duty[2]= (U_ref2 + INV.PI_I_arm2_dc.out ) / Meas.U_dc_1 + 0.5f ;//+ INV.PR_I_arm_cross.out;
-                  INV.duty[1]=1-INV.duty[0];
-                  INV.duty[3]=1-INV.duty[2];
-
+           //INV.duty[0] = (U_ref + INV.PI_I_arm_dc.out) / Meas.U_dc_0 + 0.5f;
+           //INV.duty[2] = (U_ref2 + INV.PI_I_arm2_dc.out) / Meas.U_dc_1 + 0.5f;//+ INV.PR_I_arm_cross.out;
+           INV.duty[0] = (-U_ref0) / fmaxf(Meas.U_dc_0, 1.0f) + 0.5f;
+           INV.duty[1] = 1 - INV.duty[0];
+           INV.duty[2] = (-U_ref1) / fmaxf(Meas.U_dc_1, 1.0f) + 0.5f;
+           INV.duty[3] = 1 - INV.duty[2];
+           INV.duty[4] = (-U_ref2) / fmaxf(Meas.U_dc_2, 1.0f) + 0.5f;
+           INV.duty[5] = 1 - INV.duty[4];
+           INV.duty[6] = (-U_ref3) / fmaxf(Meas.U_dc_3, 1.0f) + 0.5f;
+           INV.duty[7] = 1 - INV.duty[6];
 
 
            break;

@@ -24,30 +24,30 @@ interrupt void HWI_func()
     {
         if(Meas.U_dc_0 < Meas_alarm_L.U_dc) alarm.bit.U_dc_0_L = 1;
         if(Meas.U_dc_0 > Meas_alarm_H.U_dc) alarm.bit.U_dc_0_H = 1;
-        //if(Meas.U_dc_1 < Meas_alarm_L.U_dc) alarm.bit.U_dc_1_L = 1;
-        //if(Meas.U_dc_1 > Meas_alarm_H.U_dc) alarm.bit.U_dc_1_H = 1;
-        //if(Meas.U_dc_2 < Meas_alarm_L.U_dc) alarm.bit.U_dc_2_L = 1;
-        //if(Meas.U_dc_2 > Meas_alarm_H.U_dc) alarm.bit.U_dc_2_H = 1;
-        //if(Meas.U_dc_3 < Meas_alarm_L.U_dc) alarm.bit.U_dc_3_L = 1;
-        //if(Meas.U_dc_3 > Meas_alarm_H.U_dc) alarm.bit.U_dc_3_H = 1;
+        if(Meas.U_dc_1 < Meas_alarm_L.U_dc) alarm.bit.U_dc_1_L = 1;
+        if(Meas.U_dc_1 > Meas_alarm_H.U_dc) alarm.bit.U_dc_1_H = 1;
+        if(Meas.U_dc_2 < Meas_alarm_L.U_dc) alarm.bit.U_dc_2_L = 1;
+        if(Meas.U_dc_2 > Meas_alarm_H.U_dc) alarm.bit.U_dc_2_H = 1;
+        if(Meas.U_dc_3 < Meas_alarm_L.U_dc) alarm.bit.U_dc_3_L = 1;
+        if(Meas.U_dc_3 > Meas_alarm_H.U_dc) alarm.bit.U_dc_3_H = 1;
 
         if(Meas.I_conv_0 < Meas_alarm_L.I_conv) alarm.bit.I_conv_0_L = 1;
         if(Meas.I_conv_0 > Meas_alarm_H.I_conv) alarm.bit.I_conv_0_H = 1;
-        //if(Meas.I_conv_1 < Meas_alarm_L.I_conv) alarm.bit.I_conv_1_L = 1;
-        //if(Meas.I_conv_1 > Meas_alarm_H.I_conv) alarm.bit.I_conv_1_H = 1;
-        //if(Meas.I_conv_2 < Meas_alarm_L.I_conv) alarm.bit.I_conv_2_L = 1;
-        //if(Meas.I_conv_2 > Meas_alarm_H.I_conv) alarm.bit.I_conv_2_H = 1;
-        //if(Meas.I_conv_3 < Meas_alarm_L.I_conv) alarm.bit.I_conv_3_L = 1;
-        //if(Meas.I_conv_3 > Meas_alarm_H.I_conv) alarm.bit.I_conv_3_H = 1;
+        if(Meas.I_conv_1 < Meas_alarm_L.I_conv) alarm.bit.I_conv_1_L = 1;
+        if(Meas.I_conv_1 > Meas_alarm_H.I_conv) alarm.bit.I_conv_1_H = 1;
+        if(Meas.I_conv_2 < Meas_alarm_L.I_conv) alarm.bit.I_conv_2_L = 1;
+        if(Meas.I_conv_2 > Meas_alarm_H.I_conv) alarm.bit.I_conv_2_H = 1;
+        if(Meas.I_conv_3 < Meas_alarm_L.I_conv) alarm.bit.I_conv_3_L = 1;
+        if(Meas.I_conv_3 > Meas_alarm_H.I_conv) alarm.bit.I_conv_3_H = 1;
 
         if(Meas.I_inv_0 < Meas_alarm_L.I_inv) alarm.bit.I_inv_0_L = 1;
         if(Meas.I_inv_0 > Meas_alarm_H.I_inv) alarm.bit.I_inv_0_H = 1;
-        //if(Meas.I_inv_1 < Meas_alarm_L.I_inv) alarm.bit.I_inv_1_L = 1;
-        //if(Meas.I_inv_1 > Meas_alarm_H.I_inv) alarm.bit.I_inv_1_H = 1;
-        //if(Meas.I_inv_2 < Meas_alarm_L.I_inv) alarm.bit.I_inv_2_L = 1;
-        //if(Meas.I_inv_2 > Meas_alarm_H.I_inv) alarm.bit.I_inv_2_H = 1;
-        //if(Meas.I_inv_3 < Meas_alarm_L.I_inv) alarm.bit.I_inv_3_L = 1;
-        //if(Meas.I_inv_3 > Meas_alarm_H.I_inv) alarm.bit.I_inv_3_H = 1;
+        if(Meas.I_inv_1 < Meas_alarm_L.I_inv) alarm.bit.I_inv_1_L = 1;
+        if(Meas.I_inv_1 > Meas_alarm_H.I_inv) alarm.bit.I_inv_1_H = 1;
+        if(Meas.I_inv_2 < Meas_alarm_L.I_inv) alarm.bit.I_inv_2_L = 1;
+        if(Meas.I_inv_2 > Meas_alarm_H.I_inv) alarm.bit.I_inv_2_H = 1;
+        if(Meas.I_inv_3 < Meas_alarm_L.I_inv) alarm.bit.I_inv_3_L = 1;
+        if(Meas.I_inv_3 > Meas_alarm_H.I_inv) alarm.bit.I_inv_3_H = 1;
 
         if(Meas.I_grid < Meas_alarm_L.I_grid) alarm.bit.I_grid_L = 1;
         if(Meas.I_grid > Meas_alarm_H.I_grid) alarm.bit.I_grid_H = 1;
@@ -92,12 +92,12 @@ interrupt void HWI_func()
 
             Scope.data_in[0] = &INV.duty[0];
             Scope.data_in[1] = &INV.duty[2];
-            Scope.data_in[2] = &Meas.I_inv_0;
-            Scope.data_in[3] = &Meas.I_inv_1;
-            Scope.data_in[4] = &Meas.I_grid;
-            Scope.data_in[5] = &INV.I_cross_0;
-            Scope.data_in[6] = &INV.I_cross_1;
-            Scope.data_in[7] = &Meas.U_grid;
+            Scope.data_in[2] = &INV.duty[4];
+            Scope.data_in[3] = &INV.duty[6];
+            Scope.data_in[4] = &Meas.I_inv_0;
+            Scope.data_in[5] = &Meas.I_inv_1;
+            Scope.data_in[6] = &Meas.I_inv_2;
+            Scope.data_in[7] = &Meas.I_inv_3;
             Scope.data_in[8] = &Meas.U_dc_0;
             Scope.data_in[9] = &Meas.U_dc_1;
             Scope.acquire_counter = -1;

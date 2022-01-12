@@ -144,6 +144,14 @@ void SMachine_Main()
             Meas_gain.U_grid = u_meas_gain;
 
             Meas_gain.temperature = 0.01f;
+
+            INV.duty[0] =
+            INV.duty[1] =
+            INV.duty[3] =
+            INV.duty[4] =
+            INV.duty[5] =
+            INV.duty[6] =
+            INV.duty[7] = 0.0f;
        //}
        // else
        // {
@@ -199,12 +207,14 @@ void SMachine_Main()
         {
             Machine.state_last = Machine.state;
         }
-        INV.PR_I_arm.y0 =
-        INV.PR_I_arm.x0 =
-        INV.PR_I_arm.x1 =
-        INV.PR_I_arm2.y0 =
+        INV.PR_I_arm0.x0 =
+        INV.PR_I_arm0.x1 =
+        INV.PR_I_arm1.x0 =
+        INV.PR_I_arm1.x1 =
         INV.PR_I_arm2.x0 =
-        INV.PR_I_arm2.x1 = 0.0f;
+        INV.PR_I_arm2.x1 =
+        INV.PR_I_arm3.x0 =
+        INV.PR_I_arm3.x1 = 0.0f;
         //Machine.state = Machine_start;
         break;
     }
