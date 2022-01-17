@@ -90,10 +90,10 @@ interrupt void HWI_func()
 
             Scope.acquire_before_trigger = 1000;
 
-            Scope.data_in[0] = &INV.duty[0];
-            Scope.data_in[1] = &INV.duty[2];
-            Scope.data_in[2] = &INV.duty[4];
-            Scope.data_in[3] = &INV.duty[6];
+            Scope.data_in[0] = &INV.Cross0;
+            Scope.data_in[1] = &INV.Cross1;
+            Scope.data_in[2] = &INV.Cross2;
+            Scope.data_in[3] = &INV.Cross3;
             Scope.data_in[4] = &Meas.I_inv_0;
             Scope.data_in[5] = &Meas.I_inv_1;
             Scope.data_in[6] = &Meas.I_inv_2;

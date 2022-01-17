@@ -42,7 +42,7 @@ void Init_class::Variables()
     //    sincos_table_comp[i].sine = sinf(compensation * PLL.w_filter * PLL.Ts * (float)(i + 1));
     //}
     ////////////////////////////////////////////////////////////////
-    INV.I_arm_ref = 0.0f;
+    INV.I_arm_ac_ref = 0.0f;
     INV.I_arm_dc_ref = 0.0f;
 
     Meas_alarm_H.temperature =50.0f;
@@ -73,22 +73,40 @@ void Init_class::Variables()
     register float STC_i_dc = INV.Ts * 1.5f;// +I_arm2_filter_T;
     float kp_i_dc = INV.L_conv / (alfa_i_dc * STC_i_dc);
     float ti_i_dc = alfa_i_dc * alfa_i_dc * STC_i_dc;
+    float current_lim_H = 10.0f;
+    float current_lim_L = -10.0f;
 
-    INV.PI_I_arm_dc.Ts_Ti = INV.Ts / ti_i_dc;
-    INV.PI_I_arm_dc.Kp = kp_i_dc;
-    INV.PI_I_arm_dc.lim_H = 500.0f;
-    INV.PI_I_arm_dc.lim_L = -500.0f;
-    INV.PI_I_arm_dc.integrator = 0.0f;
-    INV.PI_I_arm_dc.proportional = 0.0f;
-    INV.PI_I_arm_dc.out = 0.0f;
+    INV.PI_I_arm_dc0.Ts_Ti = INV.Ts / ti_i_dc;
+    INV.PI_I_arm_dc0.Kp = kp_i_dc;
+    INV.PI_I_arm_dc0.lim_H = current_lim_H;
+    INV.PI_I_arm_dc0.lim_L = current_lim_L;
+    INV.PI_I_arm_dc0.integrator = 0.0f;
+    INV.PI_I_arm_dc0.proportional = 0.0f;
+    INV.PI_I_arm_dc0.out = 0.0f;
 
-    INV.PI_I_arm2_dc.Ts_Ti = INV.Ts / ti_i_dc;
-    INV.PI_I_arm2_dc.Kp = kp_i_dc;
-    INV.PI_I_arm2_dc.lim_H = 500.0f;
-    INV.PI_I_arm2_dc.lim_L = -500.0f;
-    INV.PI_I_arm2_dc.integrator = 0.0f;
-    INV.PI_I_arm2_dc.proportional = 0.0f;
-    INV.PI_I_arm2_dc.out = 0.0f;
+    INV.PI_I_arm_dc1.Ts_Ti = INV.Ts / ti_i_dc;
+    INV.PI_I_arm_dc1.Kp = kp_i_dc;
+    INV.PI_I_arm_dc1.lim_H = current_lim_H;
+    INV.PI_I_arm_dc1.lim_L = current_lim_L;
+    INV.PI_I_arm_dc1.integrator = 0.0f;
+    INV.PI_I_arm_dc1.proportional = 0.0f;
+    INV.PI_I_arm_dc1.out = 0.0f;
+
+    INV.PI_I_arm_dc2.Ts_Ti = INV.Ts / ti_i_dc;
+    INV.PI_I_arm_dc2.Kp = kp_i_dc;
+    INV.PI_I_arm_dc2.lim_H = current_lim_H;
+    INV.PI_I_arm_dc2.lim_L = current_lim_L;
+    INV.PI_I_arm_dc2.integrator = 0.0f;
+    INV.PI_I_arm_dc2.proportional = 0.0f;
+    INV.PI_I_arm_dc2.out = 0.0f;
+
+    INV.PI_I_arm_dc3.Ts_Ti = INV.Ts / ti_i_dc;
+    INV.PI_I_arm_dc3.Kp = kp_i_dc;
+    INV.PI_I_arm_dc3.lim_H = current_lim_H;
+    INV.PI_I_arm_dc3.lim_L = current_lim_L;
+    INV.PI_I_arm_dc3.integrator = 0.0f;
+    INV.PI_I_arm_dc3.proportional = 0.0f;
+    INV.PI_I_arm_dc3.out = 0.0f;
 
     register float alfa_arm = 2.0f;
     INV.PR_I_arm0.w  = 50.0f * MATH_2PI;
@@ -133,41 +151,69 @@ void Init_class::Variables()
         INV.Resonant_I_a_odd0[i].gain =
         INV.Resonant_I_a_odd1[i].gain =
         INV.Resonant_I_a_odd2[i].gain =
-        INV.Resonant_I_a_odd3[i].gain = 0.1f * r_pr_i;
+        INV.Resonant_I_a_odd3[i].gain =
+        INV.Resonant_I_a_odd0_cross[i].gain =
+        INV.Resonant_I_a_odd1_cross[i].gain =
+        INV.Resonant_I_a_odd2_cross[i].gain =
+        INV.Resonant_I_a_odd3_cross[i].gain = 0.1f * r_pr_i;
 
         INV.Resonant_I_a_odd0[i].trigonometric.ptr =
         INV.Resonant_I_a_odd1[i].trigonometric.ptr =
         INV.Resonant_I_a_odd2[i].trigonometric.ptr =
-        INV.Resonant_I_a_odd3[i].trigonometric.ptr = &sincos_table[2 * i];
+        INV.Resonant_I_a_odd3[i].trigonometric.ptr =
+        INV.Resonant_I_a_odd0_cross[i].trigonometric.ptr =
+        INV.Resonant_I_a_odd1_cross[i].trigonometric.ptr =
+        INV.Resonant_I_a_odd2_cross[i].trigonometric.ptr =
+        INV.Resonant_I_a_odd3_cross[i].trigonometric.ptr = &sincos_table[2 * i];
 
         INV.Resonant_I_a_odd0[i].trigonometric_comp.ptr =
         INV.Resonant_I_a_odd1[i].trigonometric_comp.ptr =
         INV.Resonant_I_a_odd2[i].trigonometric_comp.ptr =
-        INV.Resonant_I_a_odd3[i].trigonometric_comp.ptr = &sincos_table_comp[2 * i];
+        INV.Resonant_I_a_odd3[i].trigonometric_comp.ptr =
+        INV.Resonant_I_a_odd0_cross[i].trigonometric_comp.ptr =
+        INV.Resonant_I_a_odd1_cross[i].trigonometric_comp.ptr =
+        INV.Resonant_I_a_odd2_cross[i].trigonometric_comp.ptr =
+        INV.Resonant_I_a_odd3_cross[i].trigonometric_comp.ptr = &sincos_table_comp[2 * i];
     }
 
     for (i = 0; i < sizeof(INV.Resonant_I_a_even0) / sizeof(INV.Resonant_I_a_even0[0]); i++)
     {
-        INV.Resonant_I_a_odd0[i].gain =
-        INV.Resonant_I_a_odd1[i].gain =
-        INV.Resonant_I_a_odd2[i].gain =
-        INV.Resonant_I_a_odd3[i].gain = 0.1f * r_pr_i;
+        INV.Resonant_I_a_even0[i].gain =
+        INV.Resonant_I_a_even1[i].gain =
+        INV.Resonant_I_a_even2[i].gain =
+        INV.Resonant_I_a_even3[i].gain =
+        INV.Resonant_I_a_even0_cross[i].gain =
+        INV.Resonant_I_a_even1_cross[i].gain =
+        INV.Resonant_I_a_even2_cross[i].gain =
+        INV.Resonant_I_a_even3_cross[i].gain = 0.1f * r_pr_i;
 
-        INV.Resonant_I_a_odd0[i].trigonometric.ptr =
-        INV.Resonant_I_a_odd1[i].trigonometric.ptr =
-        INV.Resonant_I_a_odd2[i].trigonometric.ptr =
-        INV.Resonant_I_a_odd3[i].trigonometric.ptr = &sincos_table[2 * i + 1];
+        INV.Resonant_I_a_even0[i].trigonometric.ptr =
+        INV.Resonant_I_a_even1[i].trigonometric.ptr =
+        INV.Resonant_I_a_even2[i].trigonometric.ptr =
+        INV.Resonant_I_a_even3[i].trigonometric.ptr =
+        INV.Resonant_I_a_even0_cross[i].trigonometric.ptr =
+        INV.Resonant_I_a_even1_cross[i].trigonometric.ptr =
+        INV.Resonant_I_a_even2_cross[i].trigonometric.ptr =
+        INV.Resonant_I_a_even3_cross[i].trigonometric.ptr = &sincos_table[2 * i + 1];
 
         INV.Resonant_I_a_even0[i].trigonometric_comp.ptr =
         INV.Resonant_I_a_even1[i].trigonometric_comp.ptr =
         INV.Resonant_I_a_even2[i].trigonometric_comp.ptr =
-        INV.Resonant_I_a_even3[i].trigonometric_comp.ptr = &sincos_table_comp[2 * i + 1];
+        INV.Resonant_I_a_even3[i].trigonometric_comp.ptr =
+        INV.Resonant_I_a_even0_cross[i].trigonometric_comp.ptr =
+        INV.Resonant_I_a_even1_cross[i].trigonometric_comp.ptr =
+        INV.Resonant_I_a_even2_cross[i].trigonometric_comp.ptr =
+        INV.Resonant_I_a_even3_cross[i].trigonometric_comp.ptr = &sincos_table_comp[2 * i + 1];
     }
 
     INV.Resonant_I_a_odd0[0].gain =
     INV.Resonant_I_a_odd1[0].gain =
     INV.Resonant_I_a_odd2[0].gain =
-    INV.Resonant_I_a_odd3[0].gain = 1.0f * r_pr_i;
+    INV.Resonant_I_a_odd3[0].gain =
+    INV.Resonant_I_a_odd0_cross[0].gain =
+    INV.Resonant_I_a_odd1_cross[0].gain =
+    INV.Resonant_I_a_odd2_cross[0].gain =
+    INV.Resonant_I_a_odd3_cross[0].gain = 1.0f * r_pr_i;
 
     INV.compensation = 2.5f;
 
