@@ -120,23 +120,23 @@ void Inverter_calc()
            }
 
 
+
+
            INV.zero_error[3] =
            INV.zero_error[2] =
            INV.zero_error[1] =
            INV.zero_error[0] = 1.0f;
-
-
            //INV.zero_error = 1.0f;
           // if (fabs(INV.duty[0] - 0.5f) > 0.5f || fabs(INV.duty[1] - 0.5f) > 0.5f) INV.zero_error = 0;//over modulation antiwindap
 
-           if(fabs(INV.duty[0] - 0.5f) > 0.5f) INV.zero_error[0] = 0.0f;
-           if(fabs(INV.duty[2] - 0.5f) > 0.5f) INV.zero_error[1] = 0.0f;
-           if(fabs(INV.duty[4] - 0.5f) > 0.5f) INV.zero_error[2] = 0.0f;
-           if(fabs(INV.duty[6] - 0.5f) > 0.5f) INV.zero_error[3] = 0.0f;
-           if(fabs(INV.duty[0] - 0.5f) > 0.5f) INV.zero_error_cross[0] = 0.0f;
-           if(fabs(INV.duty[2] - 0.5f) > 0.5f) INV.zero_error_cross[1] = 0.0f;
-           if(fabs(INV.duty[4] - 0.5f) > 0.5f) INV.zero_error_cross[2] = 0.0f;
-           if(fabs(INV.duty[6] - 0.5f) > 0.5f) INV.zero_error_cross[3] = 0.0f;
+           if(fabs(INV.duty[0] - 0.5f) > 0.5f ||fabs(INV.duty[0] - 0.5f) < -0.5f ) INV.zero_error[0] = 0.0f;
+           if(fabs(INV.duty[2] - 0.5f) > 0.5f ||fabs(INV.duty[2] - 0.5f) < -0.5f ) INV.zero_error[1] = 0.0f;
+           if(fabs(INV.duty[4] - 0.5f) > 0.5f ||fabs(INV.duty[4] - 0.5f) < -0.5f ) INV.zero_error[2] = 0.0f;
+           if(fabs(INV.duty[6] - 0.5f) > 0.5f ||fabs(INV.duty[6] - 0.5f) < -0.5f ) INV.zero_error[3] = 0.0f;
+           if(fabs(INV.duty[0] - 0.5f) > 0.5f ||fabs(INV.duty[0] - 0.5f) < -0.5f ) INV.zero_error_cross[0] = 0.0f;
+           if(fabs(INV.duty[2] - 0.5f) > 0.5f ||fabs(INV.duty[2] - 0.5f) < -0.5f ) INV.zero_error_cross[1] = 0.0f;
+           if(fabs(INV.duty[4] - 0.5f) > 0.5f ||fabs(INV.duty[4] - 0.5f) < -0.5f ) INV.zero_error_cross[2] = 0.0f;
+           if(fabs(INV.duty[6] - 0.5f) > 0.5f ||fabs(INV.duty[6] - 0.5f) < -0.5f ) INV.zero_error_cross[3] = 0.0f;
 
 
 
@@ -147,25 +147,25 @@ void Inverter_calc()
            register float I_avg = 0.25f * Meas.I_grid;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-         register float input_error0 = (INV.I_arm_ref - Meas.I_inv_0);//(INV.I_arm_ref - I_avg);//
+         register float input_error0 = (INV.I_arm_ref - I_avg);//(INV.I_arm_ref - Meas.I_inv_0);//
          PI_antiwindup(&INV.PI_I_arm_dc0, input_error0);
          //PR_calc(&INV.PR_I_arm0, input_error0);
          INV.U_ref0 = INV.Kp_I * input_error0;
          INV.U_ref0 += Resonant_mult_calc_CLAasm(INV.Resonant_I_a_odd0, input_error0 * INV.zero_error[0], INV.resonant_odd_number);
 
-         register float input_error1 = (INV.I_arm_ref - Meas.I_inv_1);//(INV.I_arm_ref - I_avg);//
+         register float input_error1 = (INV.I_arm_ref - I_avg);//(INV.I_arm_ref - Meas.I_inv_1);//
          PI_antiwindup(&INV.PI_I_arm_dc1, input_error1);
          //PR_calc(&INV.PR_I_arm1, input_error1);
          INV.U_ref1 = INV.Kp_I * input_error1;
          INV.U_ref1 += Resonant_mult_calc_CLAasm(INV.Resonant_I_a_odd1, input_error1 * INV.zero_error[1], INV.resonant_odd_number);
 
-         register float input_error2 = (INV.I_arm_ref - Meas.I_inv_2);//(INV.I_arm_ref - I_avg);//
+         register float input_error2 =(INV.I_arm_ref - I_avg);// (INV.I_arm_ref - Meas.I_inv_2);//
          PI_antiwindup(&INV.PI_I_arm_dc2, input_error2);
          // PR_calc(&INV.PR_I_arm2, input_error2);
          INV.U_ref2 = INV.Kp_I * input_error2;
          INV.U_ref2 += Resonant_mult_calc_CLAasm(INV.Resonant_I_a_odd2, input_error2 * INV.zero_error[2], INV.resonant_odd_number);
 
-         register float input_error3 =(INV.I_arm_ref - Meas.I_inv_3);// (INV.I_arm_ref - I_avg);//
+         register float input_error3 =(INV.I_arm_ref - I_avg);//(INV.I_arm_ref - Meas.I_inv_3);//
          PI_antiwindup(&INV.PI_I_arm_dc3, input_error3);
          //PR_calc(&INV.PR_I_arm3, input_error3);
          INV.U_ref3 = INV.Kp_I * input_error3;
@@ -200,13 +200,13 @@ void Inverter_calc()
 
 
 
-           INV.duty[0] = (-INV.U_ref0) / fmaxf(Meas.U_dc_0, 1.0f) + 0.5f;
+           INV.duty[0] = (INV.U_ref0) / fmaxf(Meas.U_dc_0, 1.0f) + 0.5f;
            INV.duty[1] = 1.0f - INV.duty[0];
-           INV.duty[2] = (-INV.U_ref1) / fmaxf(Meas.U_dc_1, 1.0f) + 0.5f;
+           INV.duty[2] = (INV.U_ref1) / fmaxf(Meas.U_dc_1, 1.0f) + 0.5f;
            INV.duty[3] = 1.0f - INV.duty[2];
-           INV.duty[4] = (-INV.U_ref2) / fmaxf(Meas.U_dc_2, 1.0f) + 0.5f;
+           INV.duty[4] = (INV.U_ref2) / fmaxf(Meas.U_dc_2, 1.0f) + 0.5f;
            INV.duty[5] = 1.0f - INV.duty[4];
-           INV.duty[6] = (-INV.U_ref3) / fmaxf(Meas.U_dc_3, 1.0f) + 0.5f;
+           INV.duty[6] = (INV.U_ref3) / fmaxf(Meas.U_dc_3, 1.0f) + 0.5f;
            INV.duty[7] = 1.0f - INV.duty[6];
 
 
