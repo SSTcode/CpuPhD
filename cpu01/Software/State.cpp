@@ -138,7 +138,7 @@ void SMachine_Main()
             Meas_gain.I_inv_3 =
             Meas_gain.I_inv_2 =
             Meas_gain.I_inv_1 =
-            Meas_gain.I_inv_0 = i_meas_gain*1,84;
+            Meas_gain.I_inv_0 =i_meas_gain;
 
             Meas_gain.I_grid = i_meas_gain;
             Meas_gain.U_grid = u_meas_gain;

@@ -36,6 +36,8 @@ struct INVERTER_struct
     float I_arm_ac_ref;
     float I_arm_dc_ref;
 
+    float I_arm_ref;
+
     float Cross1;
     float Cross2;
     float Cross3;

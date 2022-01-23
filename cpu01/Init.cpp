@@ -620,6 +620,8 @@ void Init_class::PWMs()
     CpuSysRegs.PCLKCR2.bit.EPWM8 = 1;
     CpuSysRegs.PCLKCR2.bit.EPWM9 = 1;
     CpuSysRegs.PCLKCR2.bit.EPWM10 = 1;
+    CpuSysRegs.PCLKCR2.bit.EPWM11 = 1;
+    CpuSysRegs.PCLKCR2.bit.EPWM12 = 1;
     EDIS;
 
     EALLOW;
@@ -638,6 +640,8 @@ void Init_class::PWMs()
     EPwm(&EPwm8Regs);
     TZ_EN(&EPwm9Regs);//TZ_EN_CPU signal must be high. This signal is controlled by EPwm9Regs:
     PWM_timestamp(&EPwm10Regs);
+    EPwm(&EPwm11Regs);
+    EPwm(&EPwm12Regs);
 
     GPIO_Setup(TZ_EN_CPU);
     GPIO_Setup(PWM_SYNC_CPU);
@@ -658,6 +662,10 @@ void Init_class::PWMs()
     GPIO_Setup(PWM7B);
     GPIO_Setup(PWM8A);
     GPIO_Setup(PWM8B);
+    GPIO_Setup(PWM11A);
+    GPIO_Setup(PWM11B);
+    GPIO_Setup(PWM12A);
+    GPIO_Setup(PWM12B);
 }
 
 
@@ -720,6 +728,10 @@ const struct GPIO_struct GPIOreg[169] =
 [PWM7B] = {LOW, MUX1, CPU1_IO, OUTPUT, PUSHPULL},
 [PWM8A] = {LOW, MUX1, CPU1_IO, OUTPUT, PUSHPULL},
 [PWM8B] = {LOW, MUX1, CPU1_IO, OUTPUT, PUSHPULL},
+[PWM11A] = {LOW, MUX1, CPU1_IO, OUTPUT, PUSHPULL},
+[PWM11B] = {LOW, MUX1, CPU1_IO, OUTPUT, PUSHPULL},
+[PWM12A] = {LOW, MUX1, CPU1_IO, OUTPUT, PUSHPULL},
+[PWM12B] = {LOW, MUX1, CPU1_IO, OUTPUT, PUSHPULL},
 
 [TZ_EN_CPU] = {LOW, MUX1, CPU1_IO, OUTPUT, PUSHPULL},
 [PWM_SYNC_CPU] = {LOW, MUX0, CPU1_IO, INPUT, ASYNC},
