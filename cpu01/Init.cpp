@@ -23,7 +23,7 @@ void Init_class::Variables()
     float Ts = 20e-6;
 
     INV.Ts=Ts;
-    INV.L_conv=5e-3;
+    INV.L_conv=2.5e-3;
 
     CIC2_calibration.decimation_ratio = 5.0f;
     CIC2_calibration.decimation_counter = 4.0f;
@@ -107,6 +107,40 @@ void Init_class::Variables()
     INV.PI_I_arm_dc3.integrator = 0.0f;
     INV.PI_I_arm_dc3.proportional = 0.0f;
     INV.PI_I_arm_dc3.out = 0.0f;
+
+
+
+    INV.PI_I_arm_dc0_cross.Ts_Ti = INV.Ts / ti_i_dc;
+    INV.PI_I_arm_dc0_cross.Kp = kp_i_dc;
+    INV.PI_I_arm_dc0_cross.lim_H = current_lim_H;
+    INV.PI_I_arm_dc0_cross.lim_L = current_lim_L;
+    INV.PI_I_arm_dc0_cross.integrator = 0.0f;
+    INV.PI_I_arm_dc0_cross.proportional = 0.0f;
+    INV.PI_I_arm_dc0_cross.out = 0.0f;
+
+    INV.PI_I_arm_dc1_cross.Ts_Ti = INV.Ts / ti_i_dc;
+    INV.PI_I_arm_dc1_cross.Kp = kp_i_dc;
+    INV.PI_I_arm_dc1_cross.lim_H = current_lim_H;
+    INV.PI_I_arm_dc1_cross.lim_L = current_lim_L;
+    INV.PI_I_arm_dc1_cross.integrator = 0.0f;
+    INV.PI_I_arm_dc1_cross.proportional = 0.0f;
+    INV.PI_I_arm_dc1_cross.out = 0.0f;
+
+    INV.PI_I_arm_dc2_cross.Ts_Ti = INV.Ts / ti_i_dc;
+    INV.PI_I_arm_dc2_cross.Kp = kp_i_dc;
+    INV.PI_I_arm_dc2_cross.lim_H = current_lim_H;
+    INV.PI_I_arm_dc2_cross.lim_L = current_lim_L;
+    INV.PI_I_arm_dc2_cross.integrator = 0.0f;
+    INV.PI_I_arm_dc2_cross.proportional = 0.0f;
+    INV.PI_I_arm_dc2_cross.out = 0.0f;
+
+    INV.PI_I_arm_dc3_cross.Ts_Ti = INV.Ts / ti_i_dc;
+    INV.PI_I_arm_dc3_cross.Kp = kp_i_dc;
+    INV.PI_I_arm_dc3_cross.lim_H = current_lim_H;
+    INV.PI_I_arm_dc3_cross.lim_L = current_lim_L;
+    INV.PI_I_arm_dc3_cross.integrator = 0.0f;
+    INV.PI_I_arm_dc3_cross.proportional = 0.0f;
+    INV.PI_I_arm_dc3_cross.out = 0.0f;
 
     register float alfa_arm = 2.0f;
     INV.PR_I_arm0.w  = 50.0f * MATH_2PI;

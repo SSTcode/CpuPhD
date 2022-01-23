@@ -48,6 +48,8 @@ struct INVERTER_struct
     float U_ref2_cross;
     float U_ref3_cross;
 
+    float Cross_CTRL;
+
     float U_ref0;
     float U_ref1;
     float U_ref2;

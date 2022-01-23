@@ -84,15 +84,6 @@ void Inverter_calc()
            {
                INV.state_last = INV.state;
                //resonant init
-               INV.PR_I_arm0.x0 =
-               INV.PR_I_arm0.x1 =
-               INV.PR_I_arm1.x0 =
-               INV.PR_I_arm1.x1 =
-               INV.PR_I_arm2.x0 =
-               INV.PR_I_arm2.x1 =
-               INV.PR_I_arm3.x0 =
-               INV.PR_I_arm3.x1 = 0.0f;
-
                INV.Resonant_I_a_odd0[0].x0 = INV.Resonant_U_grid.y0;
                INV.Resonant_I_a_odd0[0].x1 = INV.Resonant_U_grid.y1;
 
@@ -172,42 +163,65 @@ void Inverter_calc()
          INV.U_ref3 += Resonant_mult_calc_CLAasm(INV.Resonant_I_a_odd3, input_error3 * INV.zero_error[3], INV.resonant_odd_number);
 
 ///////////////////////////////////////////////////////////////////////////////////////////
-         register float input_cross0 = (0.0f - INV.Cross0);//(I_arm_ref - Meas.I_inv_0);
-         PI_antiwindup(&INV.PI_I_arm_dc0_cross, input_cross0);
-         //PR_calc(&INV.PR_I_arm0, input_cross0);
-         INV.U_ref0_cross = INV.Kp_I * input_cross0;
-         INV.U_ref0_cross += Resonant_mult_calc_CLAasm(INV.Resonant_I_a_odd0_cross, input_cross0 * INV.zero_error_cross[0], INV.resonant_odd_number);
 
-         register float input_cross1 = (0.0f - INV.Cross1);//(I_arm_ref - Meas.I_inv_0);
-         PI_antiwindup(&INV.PI_I_arm_dc1_cross, input_cross1);
-         //PR_calc(&INV.PR_I_arm1, input_cross1);
-         INV.U_ref1_cross = INV.Kp_I * input_cross1;
-         INV.U_ref1_cross += Resonant_mult_calc_CLAasm(INV.Resonant_I_a_odd1_cross, input_cross1 * INV.zero_error_cross[1], INV.resonant_odd_number);
+         if(INV.Cross_CTRL > 0.0f)
+           {
 
-         register float input_cross2 = (0.0f - INV.Cross2);//(I_arm_ref - Meas.I_inv_0);
-         PI_antiwindup(&INV.PI_I_arm_dc2_cross, input_cross2);
-         //PR_calc(&INV.PR_I_arm2, input_cross2);
-         INV.U_ref2_cross = INV.Kp_I * input_cross2;
-         INV.U_ref2_cross += Resonant_mult_calc_CLAasm(INV.Resonant_I_a_odd2_cross, input_cross2 * INV.zero_error_cross[2], INV.resonant_odd_number);
+           register float input_cross0 = (0.0f - INV.Cross0);//(I_arm_ref - Meas.I_inv_0);
+           PI_antiwindup(&INV.PI_I_arm_dc0_cross, input_cross0);
+           //PR_calc(&INV.PR_I_arm0, input_cross0);
+           INV.U_ref0_cross = INV.Kp_I * input_cross0;
+           INV.U_ref0_cross += Resonant_mult_calc_CLAasm(INV.Resonant_I_a_odd0_cross, input_cross0 * INV.zero_error_cross[0], INV.resonant_odd_number);
 
-         register float input_cross3 = (0.0f - INV.Cross3);//(I_arm_ref - Meas.I_inv_0);
-         PI_antiwindup(&INV.PI_I_arm_dc3_cross, input_cross3);
-         //PR_calc(&INV.PR_I_arm3, input_cross3);
-         INV.U_ref3_cross = INV.Kp_I * input_cross3;
-         INV.U_ref3_cross += Resonant_mult_calc_CLAasm(INV.Resonant_I_a_odd3_cross, input_cross3 * INV.zero_error_cross[3], INV.resonant_odd_number);
+           register float input_cross1 = (0.0f - INV.Cross1);//(I_arm_ref - Meas.I_inv_0);
+           PI_antiwindup(&INV.PI_I_arm_dc1_cross, input_cross1);
+           //PR_calc(&INV.PR_I_arm1, input_cross1);
+           INV.U_ref1_cross = INV.Kp_I * input_cross1;
+           INV.U_ref1_cross += Resonant_mult_calc_CLAasm(INV.Resonant_I_a_odd1_cross, input_cross1 * INV.zero_error_cross[1], INV.resonant_odd_number);
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+           register float input_cross2 = (0.0f - INV.Cross2);//(I_arm_ref - Meas.I_inv_0);
+           PI_antiwindup(&INV.PI_I_arm_dc2_cross, input_cross2);
+           //PR_calc(&INV.PR_I_arm2, input_cross2);
+           INV.U_ref2_cross = INV.Kp_I * input_cross2;
+           INV.U_ref2_cross += Resonant_mult_calc_CLAasm(INV.Resonant_I_a_odd2_cross, input_cross2 * INV.zero_error_cross[2], INV.resonant_odd_number);
+
+           register float input_cross3 = (0.0f - INV.Cross3);//(I_arm_ref - Meas.I_inv_0);
+           PI_antiwindup(&INV.PI_I_arm_dc3_cross, input_cross3);
+           //PR_calc(&INV.PR_I_arm3, input_cross3);
+           INV.U_ref3_cross = INV.Kp_I * input_cross3;
+           INV.U_ref3_cross += Resonant_mult_calc_CLAasm(INV.Resonant_I_a_odd3_cross, input_cross3 * INV.zero_error_cross[3], INV.resonant_odd_number);
+
+           }
+           else
+           {
+               INV.PI_I_arm_dc0_cross.integrator =
+               INV.PI_I_arm_dc1_cross.integrator =
+               INV.PI_I_arm_dc2_cross.integrator =
+               INV.PI_I_arm_dc3_cross.integrator = 0.0f;
+
+
+               INV.Resonant_I_a_odd0_cross[0].x0 = INV.Resonant_U_grid.y0;
+               INV.Resonant_I_a_odd0_cross[0].x1 = INV.Resonant_U_grid.y1;
+               INV.Resonant_I_a_odd1_cross[0].x0 = INV.Resonant_U_grid.y0;
+               INV.Resonant_I_a_odd1_cross[0].x1 = INV.Resonant_U_grid.y1;
+               INV.Resonant_I_a_odd2_cross[0].x0 = INV.Resonant_U_grid.y0;
+               INV.Resonant_I_a_odd2_cross[0].x1 = INV.Resonant_U_grid.y1;
+               INV.Resonant_I_a_odd3_cross[0].x0 = INV.Resonant_U_grid.y0;
+               INV.Resonant_I_a_odd3_cross[0].x1 = INV.Resonant_U_grid.y1;
+
+           }
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
-           INV.duty[0] = (INV.U_ref0) / fmaxf(Meas.U_dc_0, 1.0f) + 0.5f;
-           INV.duty[1] = 1.0f - INV.duty[0];
-           INV.duty[2] = (INV.U_ref1) / fmaxf(Meas.U_dc_1, 1.0f) + 0.5f;
-           INV.duty[3] = 1.0f - INV.duty[2];
-           INV.duty[4] = (INV.U_ref2) / fmaxf(Meas.U_dc_2, 1.0f) + 0.5f;
-           INV.duty[5] = 1.0f - INV.duty[4];
-           INV.duty[6] = (INV.U_ref3) / fmaxf(Meas.U_dc_3, 1.0f) + 0.5f;
-           INV.duty[7] = 1.0f - INV.duty[6];
+             INV.duty[0] = (INV.U_ref0 + INV.PI_I_arm_dc0.out-INV.U_ref0_cross + INV.PI_I_arm_dc0_cross.out) / fmaxf(Meas.U_dc_0, 1.0f) + 0.5f;
+             INV.duty[1] = 1.0f - INV.duty[0];
+             INV.duty[2] = (INV.U_ref1 + INV.PI_I_arm_dc1.out-INV.U_ref1_cross + INV.PI_I_arm_dc1_cross.out) / fmaxf(Meas.U_dc_1, 1.0f) + 0.5f;
+             INV.duty[3] = 1.0f - INV.duty[2];
+             INV.duty[4] = (INV.U_ref2 + INV.PI_I_arm_dc2.out-INV.U_ref2_cross + INV.PI_I_arm_dc2_cross.out) / fmaxf(Meas.U_dc_2, 1.0f) + 0.5f;
+             INV.duty[5] = 1.0f - INV.duty[4];
+             INV.duty[6] = (INV.U_ref3 + INV.PI_I_arm_dc3.out-INV.U_ref3_cross + INV.PI_I_arm_dc3_cross.out) / fmaxf(Meas.U_dc_3, 1.0f) + 0.5f;
+             INV.duty[7] = 1.0f - INV.duty[6];
 
 
 
