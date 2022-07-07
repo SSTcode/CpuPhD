@@ -11,6 +11,16 @@
 #include <Init.h>
 #include <Blink.h>
 #include <string.h>
+#include <Software/FLASH.h>
+
+struct calibration_struct calibration;
+
+class FLASH_class calibration_FLASH =
+{
+ .address = {(Uint16 *)&calibration, 0},
+ .sector = SectorN,
+ .size16_each = {sizeof(calibration), 0},
+};
 
 struct Machine_struct Machine;
 
@@ -52,6 +62,16 @@ void SMachine_Background()
 //        else status.bit.SD_no_settings = 1;
 //    }
 
+    if(control.fields.control_bits.test_save_to_flash)
+    {
+        control.fields.control_bits.test_save_to_flash = 0;
+
+        calibration.Meas_gain = Meas_gain;
+        calibration.Meas_offset = Meas_offset;
+        calibration.available = 1;
+        calibration_FLASH.save();
+    }
+
     if(control.fields.control_bits.CPU_reset)
     {
         control.fields.control_bits.CPU_reset = 0;
@@ -81,21 +101,13 @@ void SMachine_Main()
         memset(&status, 0, sizeof(status));
         memset(&alarm, 0, sizeof(alarm));
         memset(&alarm_snapshot, 0, sizeof(alarm_snapshot));
+        memset(&calibration, 0, sizeof(calibration));
 
-//        SD_card.read_settings();
-//        SD_card.read_calibration_data();
+        calibration_FLASH.retrieve();
 
-      // if(!SD_card.settings.available || !SD_card.calibration.available)
-      //     status.bit.SD_card_not_enough_data = 1;
-      // else
-      //     status.bit.SD_card_not_enough_data = 0;
-      //
-      // if(!SD_card.calibration.available) status.bit.SD_no_calibration = 1;
-      // if(!SD_card.settings.available) status.bit.SD_no_settings = 1;
-      //
-       // if(status.bit.SD_card_not_enough_data)
-       // {
-       //     alarm.bit.Not_enough_data = 1;
+        if(!calibration.available)
+        {
+            alarm.bit.Not_enough_data = 1;
 
             float OSR = 400;
             float truncation = 8.0f;
@@ -110,7 +122,7 @@ void SMachine_Main()
             //*0.064V = 0.0000032
 
             ///0.002Ohm = 0.0016 //shunt resistor
-           // float i_meas_gain = (2.0/(200.0*200.0)*0.064)/0.002;//0.0016;
+            // float i_meas_gain = (2.0/(200.0*200.0)*0.064)/0.002;//0.0016;
 
 
             //1/(OSR*OSR)
@@ -123,7 +135,7 @@ void SMachine_Main()
             float u_meas_gain = 10.0f/10.9f*0.064/(OSR*OSR)*(3e6 + r_down)/(r_down)*(1.0 + (390.0/2.5e3))*truncation;
             //390/(1M*3 + 390) //Divider
             //(2.5/(2.5+0.39)) //R3 error
-           // float u_meas_gain = (2.0/(200.0*200.0)*0.064)/(0.39/(1000.0*3.0 + 0.39))/(2.5/(2.5+0.39));
+            // float u_meas_gain = (2.0/(200.0*200.0)*0.064)/(0.39/(1000.0*3.0 + 0.39))/(2.5/(2.5+0.39));
 
             Meas_gain.U_dc_3 =
             Meas_gain.U_dc_2 =
@@ -138,7 +150,7 @@ void SMachine_Main()
             Meas_gain.I_inv_3 =
             Meas_gain.I_inv_2 =
             Meas_gain.I_inv_1 =
-            Meas_gain.I_inv_0 =i_meas_gain;
+            Meas_gain.I_inv_0 = i_meas_gain;
 
             Meas_gain.I_grid = i_meas_gain;
             Meas_gain.U_grid = u_meas_gain;
@@ -152,12 +164,12 @@ void SMachine_Main()
             INV.duty[5] =
             INV.duty[6] =
             INV.duty[7] = 0.0f;
-       //}
-       // else
-       // {
-       //     Meas_gain = SD_card.calibration.Meas_gain;
-       //     Meas_offset = SD_card.calibration.Meas_offset;
-       // }
+        }
+        else
+        {
+            Meas_gain = calibration.Meas_gain;
+            Meas_offset = calibration.Meas_offset;
+        }
 
         Init.Variables();
 
@@ -263,6 +275,301 @@ void SMachine_Main()
         }
 
         Machine.state = Machine_idle;
+        break;
+    }
+
+    case Machine_calibrate_offsets:
+    {
+        if(Machine.state_last != Machine.state)
+        {
+            Machine.state_last = Machine.state;
+        }
+
+        if(control.fields.control_bits.try_calibrate)
+        {
+            control.fields.control_bits.try_calibrate = 0;
+            memcpy(&SD_card.calibration.Meas_offset, &Meas_offset, sizeof(Meas_offset));
+            memcpy(&SD_card.calibration.Meas_gain, &Meas_gain, sizeof(Meas_gain));
+
+//            CIC2_calibration_input.ptr = &Meas.I_conv_0;
+//            DELAY_US(100000);
+//            Meas_offset.I_conv_0 += CIC2_calibration.out / Meas_gain.I_conv_0;
+//
+//            CIC2_calibration_input.ptr = &Meas.I_conv_1;
+//            DELAY_US(100000);
+//            Meas_offset.I_conv_1 += CIC2_calibration.out / Meas_gain.I_conv_1;
+//
+//            CIC2_calibration_input.ptr = &Meas.I_conv_2;
+//            DELAY_US(100000);
+//            Meas_offset.I_conv_2 += CIC2_calibration.out / Meas_gain.I_conv_2;
+//
+//            CIC2_calibration_input.ptr = &Meas.I_conv_3;
+//            DELAY_US(100000);
+//            Meas_offset.I_conv_3 += CIC2_calibration.out / Meas_gain.I_conv_3;
+//
+//
+//            CIC2_calibration_input.ptr = &Meas.I_inv_0;
+//            DELAY_US(100000);
+//            Meas_offset.I_inv_0 += CIC2_calibration.out / Meas_gain.I_inv_0;
+//
+//            CIC2_calibration_input.ptr = &Meas.I_inv_1;
+//            DELAY_US(100000);
+//            Meas_offset.I_inv_1 += CIC2_calibration.out / Meas_gain.I_inv_1;
+//
+//            CIC2_calibration_input.ptr = &Meas.I_inv_2;
+//            DELAY_US(100000);
+//            Meas_offset.I_inv_2 += CIC2_calibration.out / Meas_gain.I_inv_2;
+//
+//            CIC2_calibration_input.ptr = &Meas.I_inv_3;
+//            DELAY_US(100000);
+//            Meas_offset.I_inv_3 += CIC2_calibration.out / Meas_gain.I_inv_3;
+//
+//
+//            CIC2_calibration_input.ptr = &Meas.I_grid;
+//            DELAY_US(100000);
+//            Meas_offset.I_grid += CIC2_calibration.out / Meas_gain.I_grid;
+//
+//            CIC2_calibration_input.ptr = &Meas.U_grid;
+//            DELAY_US(100000);
+//            Meas_offset.U_grid += CIC2_calibration.out / Meas_gain.U_grid;
+
+
+            CIC2_calibration_input.ptr = &Meas.U_dc_0;
+            DELAY_US(100000);
+            Meas_offset.U_dc_0 += CIC2_calibration.out / Meas_gain.U_dc_0;
+
+            CIC2_calibration_input.ptr = &Meas.U_dc_1;
+            DELAY_US(100000);
+            Meas_offset.U_dc_1 += CIC2_calibration.out / Meas_gain.U_dc_1;
+
+            CIC2_calibration_input.ptr = &Meas.U_dc_2;
+            DELAY_US(100000);
+            Meas_offset.U_dc_2 += CIC2_calibration.out / Meas_gain.U_dc_2;
+
+            CIC2_calibration_input.ptr = &Meas.U_dc_3;
+            DELAY_US(100000);
+            Meas_offset.U_dc_3 += CIC2_calibration.out / Meas_gain.U_dc_3;
+
+
+            static struct Measurements_struct Meas_offset_real;
+            Meas_offset_real.U_dc_0   = fabsf(Meas_offset.U_dc_0 * Meas_gain.U_dc_0);
+            Meas_offset_real.U_dc_1   = fabsf(Meas_offset.U_dc_1 * Meas_gain.U_dc_1);
+            Meas_offset_real.U_dc_2   = fabsf(Meas_offset.U_dc_2 * Meas_gain.U_dc_2);
+            Meas_offset_real.U_dc_3   = fabsf(Meas_offset.U_dc_3 * Meas_gain.U_dc_3);
+            Meas_offset_real.I_conv_0 = fabsf(Meas_offset.I_conv_0 * Meas_gain.I_conv_0);
+            Meas_offset_real.I_conv_1 = fabsf(Meas_offset.I_conv_1 * Meas_gain.I_conv_1);
+            Meas_offset_real.I_conv_2 = fabsf(Meas_offset.I_conv_2 * Meas_gain.I_conv_2);
+            Meas_offset_real.I_conv_3 = fabsf(Meas_offset.I_conv_3 * Meas_gain.I_conv_3);
+            Meas_offset_real.I_inv_0  = fabsf(Meas_offset.I_inv_0 * Meas_gain.I_inv_0);
+            Meas_offset_real.I_inv_1  = fabsf(Meas_offset.I_inv_1 * Meas_gain.I_inv_1);
+            Meas_offset_real.I_inv_2  = fabsf(Meas_offset.I_inv_2 * Meas_gain.I_inv_2);
+            Meas_offset_real.I_inv_3  = fabsf(Meas_offset.I_inv_3 * Meas_gain.I_inv_3);
+            Meas_offset_real.U_grid   = fabsf(Meas_offset.U_grid * Meas_gain.U_grid);
+            Meas_offset_real.I_grid   = fabsf(Meas_offset.I_grid * Meas_gain.I_grid);
+
+            float tolerance_U = 1.0f;
+            float tolerance_I = 0.05f;
+            if (Meas_offset_real.U_dc_0 > tolerance_U ||
+                Meas_offset_real.U_dc_1 > tolerance_U ||
+                Meas_offset_real.U_dc_2 > tolerance_U ||
+                Meas_offset_real.U_dc_3 > tolerance_U ||
+                Meas_offset_real.I_conv_0 > tolerance_I ||
+                Meas_offset_real.I_conv_1 > tolerance_I ||
+                Meas_offset_real.I_conv_2 > tolerance_I ||
+                Meas_offset_real.I_conv_3 > tolerance_I ||
+                Meas_offset_real.I_inv_0 > tolerance_I ||
+                Meas_offset_real.I_inv_1 > tolerance_I ||
+                Meas_offset_real.I_inv_2 > tolerance_I ||
+                Meas_offset_real.I_inv_3 > tolerance_I ||
+                Meas_offset_real.U_grid > tolerance_U ||
+                Meas_offset_real.I_grid > tolerance_I)
+            {
+                status.bit.calibration_error = 1;
+            }
+            else
+            {
+                status.bit.calibration_error = 0;
+                Machine.state = Machine_calibrate_gain;
+            }
+        }
+        break;
+    }
+
+    case Machine_calibrate_gain:
+    {
+        static Uint16 calib_rdy;
+        static Uint16 calib_rdy_last;
+        if(Machine.state_last != Machine.state)
+        {
+            Machine.state_last = Machine.state;
+            calib_rdy = 0;
+            calib_rdy_last = 0;
+        }
+
+        if(control.fields.control_bits.try_calibrate)
+        {
+            control.fields.control_bits.try_calibrate = 0;
+
+            float I_cal = 2.0f;
+            float U_cal = 28.0f;
+
+//            if(fabsf(Meas.I_conv_0) > I_cal)
+//            {
+//                CIC2_calibration_input.ptr = &Meas.I_conv_0;
+//                DELAY_US(100000);
+//                Meas_gain.I_conv_0 = fabsf(Meas_gain.I_conv_0 * 5.0f / CIC2_calibration.out);
+//                calib_rdy |= 1<<0;
+//            }
+//            if(fabsf(Meas.I_conv_1) > I_cal)
+//            {
+//                CIC2_calibration_input.ptr = &Meas.I_conv_1;
+//                DELAY_US(100000);
+//                Meas_gain.I_conv_1 = fabsf(Meas_gain.I_conv_1 * 5.0f / CIC2_calibration.out);
+//                calib_rdy |= 1<<1;
+//            }
+//            if(fabsf(Meas.I_conv_2) > I_cal)
+//            {
+//                CIC2_calibration_input.ptr = &Meas.I_conv_2;
+//                DELAY_US(100000);
+//                Meas_gain.I_conv_2 = fabsf(Meas_gain.I_conv_2 * 5.0f / CIC2_calibration.out);
+//                calib_rdy |= 1<<2;
+//            }
+//            if(fabsf(Meas.I_conv_3) > I_cal)
+//            {
+//                CIC2_calibration_input.ptr = &Meas.I_conv_3;
+//                DELAY_US(100000);
+//                Meas_gain.I_conv_3 = fabsf(Meas_gain.I_conv_3 * 5.0f / CIC2_calibration.out);
+//                calib_rdy |= 1<<3;
+//            }
+//
+//            if(fabsf(Meas.I_inv_0) > I_cal)
+//            {
+//                CIC2_calibration_input.ptr = &Meas.I_inv_0;
+//                DELAY_US(100000);
+//                Meas_gain.I_inv_0 = fabsf(Meas_gain.I_inv_0 * 5.0f / CIC2_calibration.out);
+//                calib_rdy |= 1<<4;
+//            }
+//            if(fabsf(Meas.I_inv_1) > I_cal)
+//            {
+//                CIC2_calibration_input.ptr = &Meas.I_inv_1;
+//                DELAY_US(100000);
+//                Meas_gain.I_inv_1 = fabsf(Meas_gain.I_inv_1 * 5.0f / CIC2_calibration.out);
+//                calib_rdy |= 1<<5;
+//            }
+//            if(fabsf(Meas.I_inv_2) > I_cal)
+//            {
+//                CIC2_calibration_input.ptr = &Meas.I_inv_2;
+//                DELAY_US(100000);
+//                Meas_gain.I_inv_2 = fabsf(Meas_gain.I_inv_2 * 5.0f / CIC2_calibration.out);
+//                calib_rdy |= 1<<6;
+//            }
+//            if(fabsf(Meas.I_inv_3) > I_cal)
+//            {
+//                CIC2_calibration_input.ptr = &Meas.I_inv_3;
+//                DELAY_US(100000);
+//                Meas_gain.I_inv_3 = fabsf(Meas_gain.I_inv_3 * 5.0f / CIC2_calibration.out);
+//                calib_rdy |= 1<<7;
+//            }
+//
+//            if(fabsf(Meas.U_grid) > U_cal)
+//            {
+//                CIC2_calibration_input.ptr = &Meas.U_grid;
+//                DELAY_US(100000);
+//                Meas_gain.U_grid = fabsf(Meas_gain.U_grid * 30.0f / CIC2_calibration.out);
+//                calib_rdy |= 1<<12;
+//            }
+//            if(fabsf(Meas.I_grid) > I_cal)
+//            {
+//                CIC2_calibration_input.ptr = &Meas.I_grid;
+//                DELAY_US(100000);
+//                Meas_gain.I_grid = fabsf(Meas_gain.I_grid * 5.0f / CIC2_calibration.out);
+//                calib_rdy |= 1<<13;
+//            }
+
+            if(fabsf(Meas.U_dc_0) > U_cal)
+            {
+                CIC2_calibration_input.ptr = &Meas.U_dc_0;
+                DELAY_US(100000);
+                Meas_gain.U_dc_0 = -fabsf(Meas_gain.U_dc_0 * 30.0f / CIC2_calibration.out);
+                calib_rdy |= 1<<8;
+            }
+            if(fabsf(Meas.U_dc_1) > U_cal)
+            {
+                CIC2_calibration_input.ptr = &Meas.U_dc_1;
+                DELAY_US(100000);
+                Meas_gain.U_dc_1 = -fabsf(Meas_gain.U_dc_1 * 30.0f / CIC2_calibration.out);
+                calib_rdy |= 1<<9;
+            }
+            if(fabsf(Meas.U_dc_2) > U_cal)
+            {
+                CIC2_calibration_input.ptr = &Meas.U_dc_2;
+                DELAY_US(100000);
+                Meas_gain.U_dc_2 = -fabsf(Meas_gain.U_dc_2 * 30.0f / CIC2_calibration.out);
+                calib_rdy |= 1<<10;
+            }
+            if(fabsf(Meas.U_dc_3) > U_cal)
+            {
+                CIC2_calibration_input.ptr = &Meas.U_dc_3;
+                DELAY_US(100000);
+                Meas_gain.U_dc_3 = -fabsf(Meas_gain.U_dc_3 * 30.0f / CIC2_calibration.out);
+                calib_rdy |= 1<<11;
+            }
+
+            if(calib_rdy == calib_rdy_last)
+            {
+                status.bit.calibration_error = 1;
+            }
+            calib_rdy_last = calib_rdy;
+
+            if(calib_rdy == 0xF00)
+            {
+                float mean_gain_meas;
+
+                static struct Measurements_struct Meas_gain_ratio;
+                mean_gain_meas = (Meas_gain.U_dc_0 + Meas_gain.U_dc_1 + Meas_gain.U_dc_2 + Meas_gain.U_dc_3) / 4.0f;
+                Meas_gain_ratio.U_dc_0   = fabsf(Meas_gain.U_dc_0 / mean_gain_meas) - 1.0f;
+                Meas_gain_ratio.U_dc_1   = fabsf(Meas_gain.U_dc_1 / mean_gain_meas) - 1.0f;
+                Meas_gain_ratio.U_dc_2   = fabsf(Meas_gain.U_dc_2 / mean_gain_meas) - 1.0f;
+                Meas_gain_ratio.U_dc_3   = fabsf(Meas_gain.U_dc_3 / mean_gain_meas) - 1.0f;
+                mean_gain_meas = (Meas_gain.I_conv_0 + Meas_gain.I_conv_1 + Meas_gain.I_conv_2 + Meas_gain.I_conv_3) / 4.0f;
+                Meas_gain_ratio.I_conv_0 = fabsf(Meas_gain.I_conv_0 / mean_gain_meas) - 1.0f;
+                Meas_gain_ratio.I_conv_1 = fabsf(Meas_gain.I_conv_1 / mean_gain_meas) - 1.0f;
+                Meas_gain_ratio.I_conv_2 = fabsf(Meas_gain.I_conv_2 / mean_gain_meas) - 1.0f;
+                Meas_gain_ratio.I_conv_3 = fabsf(Meas_gain.I_conv_3 / mean_gain_meas) - 1.0f;
+                mean_gain_meas = (Meas_gain.I_inv_0 + Meas_gain.I_inv_1 + Meas_gain.I_inv_2 + Meas_gain.I_inv_3) / 4.0f;
+                Meas_gain_ratio.I_inv_0  = fabsf(Meas_gain.I_inv_0 / mean_gain_meas) - 1.0f;
+                Meas_gain_ratio.I_inv_1  = fabsf(Meas_gain.I_inv_1 / mean_gain_meas) - 1.0f;
+                Meas_gain_ratio.I_inv_2  = fabsf(Meas_gain.I_inv_2 / mean_gain_meas) - 1.0f;
+                Meas_gain_ratio.I_inv_3  = fabsf(Meas_gain.I_inv_3 / mean_gain_meas) - 1.0f;
+
+                Meas_gain_ratio.U_grid   = fabsf(Meas_offset.U_grid / SD_card.calibration.Meas_gain.U_grid);
+                Meas_gain_ratio.I_grid   = fabsf(Meas_offset.I_grid / SD_card.calibration.Meas_gain.I_grid);
+
+                float tolerance = 0.03;
+                if (Meas_gain_ratio.U_dc_0 > tolerance ||
+                    Meas_gain_ratio.U_dc_1 > tolerance ||
+                    Meas_gain_ratio.U_dc_2 > tolerance ||
+                    Meas_gain_ratio.U_dc_3 > tolerance ||
+                    Meas_gain_ratio.I_conv_0 > tolerance ||
+                    Meas_gain_ratio.I_conv_1 > tolerance ||
+                    Meas_gain_ratio.I_conv_2 > tolerance ||
+                    Meas_gain_ratio.I_conv_3 > tolerance ||
+                    Meas_gain_ratio.I_inv_0 > tolerance ||
+                    Meas_gain_ratio.I_inv_1 > tolerance ||
+                    Meas_gain_ratio.I_inv_2 > tolerance ||
+                    Meas_gain_ratio.I_inv_3 > tolerance ||
+                    Meas_gain_ratio.U_grid > tolerance ||
+                    Meas_gain_ratio.I_grid > tolerance)
+                {
+                    status.bit.calibration_error = 1;
+                }
+                else
+                {
+                    status.bit.calibration_error = 0;
+                    Machine.state = Machine_idle;
+                }
+            }
+        }
         break;
     }
 

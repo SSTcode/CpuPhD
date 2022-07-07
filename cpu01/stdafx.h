@@ -104,7 +104,8 @@ union STATUS
         Uint32 SD_card_not_enough_data:1;
         Uint32 SD_no_calibration : 1;
         Uint32 SD_no_settings : 1;
-        Uint32 rsvd1 : 28;
+        Uint32 calibration_error : 1;
+        Uint32 rsvd1 : 27;
         Uint32 rsvd2 : 32;
     }bit;
 };
@@ -118,7 +119,9 @@ union CONTROL
         {
             Uint32 SD_save_settings:1;
             Uint32 CPU_reset:1;
-            Uint32 rsvd1:30;
+            Uint32 test_save_to_flash:1;
+            Uint32 try_calibrate:1;
+            Uint32 rsvd1:28;
         }control_bits;
     }fields;
 };

@@ -27,6 +27,8 @@ enum Machine_state_enum
     Machine_start,
     Machine_operational,
     Machine_cleanup,
+    Machine_calibrate_offsets,
+    Machine_calibrate_gain,
     __dummybig_Machine = 300000
 };
 

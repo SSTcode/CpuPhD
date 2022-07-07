@@ -53,7 +53,7 @@ interrupt void Cla1Task1 ( void )
     ePWM_leg(&EPwm8Regs, INV.duty[7]);
 
 
-    //CIC2_filter_CLAasm(&CIC2_calibration, *CIC2_calibration_input.ptr);
+    CIC2_filter_CLAasm(&CIC2_calibration, *CIC2_calibration_input.ptr);
 
     Timer_PWM.CLA_END_TASK = TIMESTAMP_PWM;
 

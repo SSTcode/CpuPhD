@@ -16,6 +16,14 @@
 
 class Init_class Init;
 
+void CIC2_filter_init(struct CIC2_struct *CIC, float max_value, Uint16 OSR, Uint16 decimation_ratio)
+{
+    CIC->decimation_ratio = decimation_ratio;
+    CIC->OSR = OSR;
+    CIC->div_OSR = 1.0f / (float)OSR;
+    CIC->range_modifier = (float)(1UL << 31) / (float)OSR / (float)OSR / max_value;
+    CIC->div_range_modifier = 1.0f / CIC->range_modifier;
+}
 
 void Init_class::Variables()
 {
@@ -25,12 +33,11 @@ void Init_class::Variables()
     INV.Ts=Ts;
     INV.L_conv=5e-3;
 
-    CIC2_calibration.decimation_ratio = 5.0f;
-    CIC2_calibration.decimation_counter = 4.0f;
-    CIC2_calibration.OSR = 125;
-    CIC2_calibration.div_OSR = 1.0f / CIC2_calibration.OSR;
-    CIC2_calibration.range_modifier = 2500.0f;
-    CIC2_calibration.div_range_modifier = 1.0f / CIC2_calibration.range_modifier;
+    float full_OSR_PLL = (Uint16)(0.02f / INV.Ts + 0.5f);
+    float decimation_PLL = 1.0f;
+    while (full_OSR_PLL / decimation_PLL > 140.0f) decimation_PLL++;
+    Uint16 OSR_PLL = full_OSR_PLL / decimation_PLL + 0.5f;
+    CIC2_filter_init(&CIC2_calibration, 50.0f, OSR_PLL, decimation_PLL);
     CIC2_calibration_input.ptr = &Meas.U_dc_0;
 
     //for (i = 0; i < SINCOS_HARMONICS; i++)
