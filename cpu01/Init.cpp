@@ -23,7 +23,7 @@ void Init_class::Variables()
     float Ts = 20e-6;
 
     INV.Ts=Ts;
-    INV.L_conv=2.5e-3;
+    INV.L_conv=5e-3;
 
     CIC2_calibration.decimation_ratio = 5.0f;
     CIC2_calibration.decimation_counter = 4.0f;
@@ -48,7 +48,7 @@ void Init_class::Variables()
     Meas_alarm_H.temperature =50.0f;
     Meas_alarm_L.temperature =-10.0f;
 
-    Meas_alarm_H.U_dc = 50.0f;
+    Meas_alarm_H.U_dc = 35.0f;
     Meas_alarm_L.U_dc = -5.0f;
     Meas_alarm_H.I_conv = 3.0f;
     Meas_alarm_L.I_conv = -3.0f;
